@@ -507,10 +507,10 @@
 
         <!-- Mode Tabs -->
         <div class="mode-tabs">
-            <button class="mode-tab active" data-mode="calculator">Калькулятор</button>
-            <button class="mode-tab" data-mode="fractions">Дроби</button>
-            <button class="mode-tab" data-mode="memory">Память</button>
-            <button class="mode-tab" data-mode="solver">Решатель</button>
+            <button class="mode-tab active" data-mode="calculator">простой</button>
+            <button class="mode-tab" data-mode="fractions">дроби</button>
+            <button class="mode-tab" data-mode="memory">мемори</button>
+            <button class="mode-tab" data-mode="solver">решалка</button>
         </div>
 
         <!-- Content Area -->
@@ -648,8 +648,8 @@
                     </div>
 
                     <div class="fraction-actions">
-                        <button class="action-btn secondary" id="simplifyBtn">Сократить</button>
-                        <button class="action-btn primary" id="calculateFractions">Вычислить</button>
+                        <button class="action-btn secondary" id="simplifyBtn">сократить</button>
+                        <button class="action-btn primary" id="calculateFractions">солв</button>
                     </div>
                 </div>
             </div>
@@ -658,15 +658,15 @@
             <div class="mode-content" id="memory-mode">
                 <div class="solver-container">
                     <div class="solver-input-group">
-                        <label>Управление памятью:</label>
+                        <label></label>
                         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-                            <button class="solve-btn" data-action="memory-clear-all">Очистить всё</button>
-                            <button class="solve-btn" data-action="memory-recover">Восстановить</button>
+                            <button class="solve-btn" data-action="memory-clear-all">очистить</button>
+                            <button class="solve-btn" data-action="memory-recover">восстановить</button>
                         </div>
                     </div>
                     
                     <div class="solver-input-group">
-                        <label>Ячейки памяти (0-99):</label>
+                        <label>ячейки мемори (99)</label>
                         <div class="memory-grid" style="grid-template-columns: repeat(10, 1fr); max-height: 300px; overflow-y: auto;">
                             <!-- Memory cells will be generated here -->
                         </div>
@@ -678,19 +678,19 @@
             <div class="mode-content" id="solver-mode">
                 <div class="solver-container">
                     <div class="solver-input-group">
-                        <label>Тип:</label>
+                        <label>тип</label>
                         <select id="solverType">
-                            <option value="equation">Уравнение</option>
-                            <option value="derivative">Производная</option>
+                            <option value="equation">уравнение</option>
+                            <option value="derivative">производная</option>
                         </select>
                     </div>
 
                     <div class="solver-input-group">
-                        <label>Выражение:</label>
+                        <label>выражение</label>
                         <input type="text" id="solverExpression" placeholder="x^2 + 2x + 1">
                     </div>
 
-                    <button class="solve-btn" id="solveBtn">Решить</button>
+                    <button class="solve-btn" id="solveBtn">солв</button>
 
                     <div class="fraction-result" id="solutionSteps" style="display: none;"></div>
                 </div>
@@ -1455,4 +1455,5 @@
         });
     </script>
 </body>
+
 </html>
