@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Калькулятор</title>
     <link href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Special+Gothic+Expanded+One&display=swap" rel="stylesheet">
     <style>
         * {
             margin: 0;
@@ -21,12 +22,66 @@
             touch-action: pan-y;
         }
 
+        /* Splash Screen */
+        #splashScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #ffffff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+            transition: opacity 0.5s ease;
+        }
+
+        .splash-text {
+            font-family: 'Special Gothic Expanded One', sans-serif;
+            font-size: 4rem;
+            font-weight: bold;
+            color: #000000;
+            text-align: center;
+            opacity: 0;
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        .splash-text.calc {
+            font-size: 3rem;
+            animation: fadeInScale 0.8s ease forwards;
+        }
+
+        @keyframes fadeIn {
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes fadeInScale {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
         .app-container {
             height: 100vh;
             display: flex;
             flex-direction: column;
             padding: 8px;
             gap: 8px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .app-container.loaded {
+            opacity: 1;
         }
 
         /* Header */
@@ -322,9 +377,18 @@
         }
 
         .calculator-keyboard.ovz .calc-btn {
-            font-size: 24px;
-            min-height: 80px;
+            font-size: 32px;
+            min-height: 90px;
             border-radius: 25px;
+            background: #000000;
+            color: #ffffff;
+            font-weight: 900;
+            border: 3px solid #000000;
+        }
+
+        .calculator-keyboard.ovz .calc-btn:active {
+            background: #ffffff;
+            color: #000000;
         }
 
         .calculator-keyboard.middle .calc-btn {
@@ -334,10 +398,31 @@
         .calculator-keyboard.gia .calc-btn {
             border-radius: 16px;
         }
+
+        .mode-computational {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .mode-graphing {
+            background: #2d2d2d;
+            color: #ffffff;
+        }
+
+        .mode-programming {
+            background: #404040;
+            color: #ffffff;
+        }
     </style>
 </head>
 <body>
-    <div class="app-container">
+    <!-- Splash Screen -->
+    <div id="splashScreen">
+        <div class="splash-text" id="splashLeo">leo.</div>
+    </div>
+
+    <!-- Main App -->
+    <div class="app-container" id="appContainer">
         <!-- Header -->
         <div class="header">
             <button class="header-btn" id="modeBtn">MODE</button>
@@ -413,8 +498,8 @@
             <button class="calc-btn function" data-action="negate">±</button>
             <button class="calc-btn" data-value="0">0</button>
             <button class="calc-btn" data-value=".">,</button>
-            <button class="calc-btn function" data-action="equals">=</button>
-            <button class="calc-btn function" data-action="equals">=</button>
+            <button class="calc-btn function" data-action="fraction">a b/c</button>
+            <button class="calc-btn equals" data-action="equals">=</button>
         </div>
     </div>
 
@@ -422,23 +507,41 @@
     <div class="modal" id="modeModal">
         <div class="modal-content">
             <div class="modal-header">Выберите режим</div>
-            <div class="mode-option" data-mode="beginner">
+            
+            <div class="mode-option mode-computational" data-mode="computational">
+                Вычисления
+                <div class="mode-description">Базовые и научные вычисления</div>
+            </div>
+            
+            <div class="mode-option mode-graphing" data-mode="graphing">
+                Графики
+                <div class="mode-description">Построение графиков функций</div>
+            </div>
+            
+            <div class="mode-option mode-programming" data-mode="programming">
+                Программирование
+                <div class="mode-description">Расширенные вычисления</div>
+            </div>
+
+            <div class="modal-header" style="margin-top: 20px;">Уровень сложности</div>
+            
+            <div class="mode-option" data-complexity="beginner">
                 Начальная школа
                 <div class="mode-description">Большие кнопки, только основы</div>
             </div>
-            <div class="mode-option" data-mode="middle">
+            <div class="mode-option" data-complexity="middle">
                 Средняя школа
                 <div class="mode-description">Дроби, проценты, степени</div>
             </div>
-            <div class="mode-option" data-mode="gia">
+            <div class="mode-option" data-complexity="gia">
                 ГИА подготовка
                 <div class="mode-description">Все для экзамена 9 класс</div>
             </div>
-            <div class="mode-option" data-mode="ovz">
+            <div class="mode-option" data-complexity="ovz">
                 ОВЗ
-                <div class="mode-description">Особые образовательные потребности</div>
+                <div class="mode-description">Высококонтрастные огромные цифры</div>
             </div>
-            <div class="mode-option active" data-mode="balance">
+            <div class="mode-option active" data-complexity="balance">
                 Баланс (рекомендуется)
                 <div class="mode-description">Оптимальный набор функций</div>
             </div>
@@ -504,17 +607,45 @@
                 this.currentMemory = 0;
                 this.alphaMode = false;
                 this.lastAnswer = null;
-                this.currentMode = 'balance';
+                this.currentMode = 'computational';
+                this.currentComplexity = 'balance';
                 this.soundEnabled = true;
                 this.vibrationEnabled = true;
                 this.precision = 6;
                 this.angleMode = 'deg';
                 
                 this.initializeElements();
+                this.setupSplashScreen();
                 this.attachEventListeners();
                 this.setupModals();
                 this.updateKeyboardForMode();
                 this.loadSettings();
+            }
+
+            setupSplashScreen() {
+                const splashScreen = document.getElementById('splashScreen');
+                const splashLeo = document.getElementById('splashLeo');
+                const appContainer = document.getElementById('appContainer');
+
+                // First show "leo."
+                setTimeout(() => {
+                    splashLeo.style.opacity = '1';
+                    
+                    // After 1 second, change to "calc" with animation
+                    setTimeout(() => {
+                        splashLeo.textContent = 'calc';
+                        splashLeo.classList.add('calc');
+                        
+                        // After another second, show main app
+                        setTimeout(() => {
+                            splashScreen.style.opacity = '0';
+                            setTimeout(() => {
+                                splashScreen.style.display = 'none';
+                                appContainer.classList.add('loaded');
+                            }, 500);
+                        }, 1000);
+                    }, 1000);
+                }, 100);
             }
 
             initializeElements() {
@@ -544,14 +675,26 @@
                     this.saveSettings();
                 });
 
-                // Mode selection
-                document.querySelectorAll('.mode-option').forEach(option => {
+                // Mode selection - computational modes
+                document.querySelectorAll('.mode-option[data-mode]').forEach(option => {
                     option.addEventListener('click', () => {
                         this.currentMode = option.dataset.mode;
                         this.updateKeyboardForMode();
-                        this.modeModal.classList.remove('active');
                         
-                        document.querySelectorAll('.mode-option').forEach(opt => {
+                        document.querySelectorAll('.mode-option[data-mode]').forEach(opt => {
+                            opt.classList.remove('active');
+                        });
+                        option.classList.add('active');
+                    });
+                });
+
+                // Mode selection - complexity levels
+                document.querySelectorAll('.mode-option[data-complexity]').forEach(option => {
+                    option.addEventListener('click', () => {
+                        this.currentComplexity = option.dataset.complexity;
+                        this.updateKeyboardForMode();
+                        
+                        document.querySelectorAll('.mode-option[data-complexity]').forEach(opt => {
                             opt.classList.remove('active');
                         });
                         option.classList.add('active');
@@ -590,17 +733,23 @@
 
             updateKeyboardForMode() {
                 this.mainKeyboard.className = 'calculator-keyboard';
-                this.mainKeyboard.classList.add(this.currentMode);
+                this.mainKeyboard.classList.add(this.currentComplexity);
 
                 const buttons = this.mainKeyboard.querySelectorAll('.calc-btn');
                 const sciButtons = this.scientificPanel.querySelectorAll('.sci-btn');
 
-                // Update main keyboard based on mode
+                // Remove duplicate equals button
+                const equalsButtons = this.mainKeyboard.querySelectorAll('[data-action="equals"]');
+                if (equalsButtons.length > 1) {
+                    equalsButtons[1].remove();
+                }
+
+                // Update main keyboard based on complexity
                 buttons.forEach(btn => {
                     const action = btn.dataset.action;
                     const value = btn.dataset.value;
                     
-                    switch(this.currentMode) {
+                    switch(this.currentComplexity) {
                         case 'beginner':
                             if (action && !['clear', 'backspace', 'equals', 'add', 'subtract', 'multiply', 'divide'].includes(action)) {
                                 btn.style.display = 'none';
@@ -613,6 +762,11 @@
                             
                         case 'ovz':
                             btn.style.display = 'flex';
+                            // High contrast for OVZ
+                            if (value) {
+                                btn.style.fontSize = '32px';
+                                btn.style.fontWeight = '900';
+                            }
                             break;
                             
                         case 'middle':
@@ -631,19 +785,49 @@
                     }
                 });
 
-                // Update scientific panel visibility
-                switch(this.currentMode) {
+                // Update scientific panel visibility based on mode and complexity
+                switch(this.currentComplexity) {
                     case 'beginner':
                         this.scientificPanel.style.display = 'none';
                         break;
                     case 'ovz':
                         this.scientificPanel.style.display = 'grid';
+                        // High contrast for OVZ scientific buttons
+                        sciButtons.forEach(btn => {
+                            btn.style.fontSize = '18px';
+                            btn.style.fontWeight = '900';
+                        });
                         break;
                     case 'middle':
                     case 'gia':
                     case 'balance':
                     default:
                         this.scientificPanel.style.display = 'grid';
+                        break;
+                }
+
+                // Update based on computational mode
+                switch(this.currentMode) {
+                    case 'graphing':
+                        // Hide some scientific functions when in graphing mode
+                        sciButtons.forEach(btn => {
+                            if (['nCr', 'nPr', 'hyp'].includes(btn.dataset.func)) {
+                                btn.style.display = 'none';
+                            }
+                        });
+                        break;
+                    case 'programming':
+                        // Show all scientific functions
+                        sciButtons.forEach(btn => {
+                            btn.style.display = 'flex';
+                        });
+                        break;
+                    case 'computational':
+                    default:
+                        // Default behavior
+                        sciButtons.forEach(btn => {
+                            btn.style.display = 'flex';
+                        });
                         break;
                 }
             }
@@ -675,7 +859,6 @@
 
             playSound() {
                 if (this.soundEnabled) {
-                    // Simple click sound simulation
                     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
                     const oscillator = audioContext.createOscillator();
                     const gainNode = audioContext.createGain();
@@ -757,6 +940,9 @@
                         break;
                     case 'negate':
                         this.expression += '*(-1)';
+                        break;
+                    case 'fraction':
+                        this.expression += '/';
                         break;
                     case 'mc':
                         this.memory[this.currentMemory] = null;
@@ -847,7 +1033,8 @@
                         expr = expr.replace(/tan\(/g, 'tan(pi/180*');
                     }
                     
-                    expr = expr.replace(/√/g, 'sqrt');
+                    // Fix root calculation - replace √ with sqrt and handle properly
+                    expr = expr.replace(/√\(/g, 'sqrt(');
                     expr = expr.replace(/,/g, '.');
                     
                     const result = math.evaluate(expr);
@@ -889,7 +1076,8 @@
                     vibrationEnabled: this.vibrationEnabled,
                     precision: this.precision,
                     angleMode: this.angleMode,
-                    currentMode: this.currentMode
+                    currentMode: this.currentMode,
+                    currentComplexity: this.currentComplexity
                 };
                 localStorage.setItem('calculatorSettings', JSON.stringify(settings));
             }
@@ -902,7 +1090,8 @@
                     this.vibrationEnabled = settings.vibrationEnabled !== false;
                     this.precision = settings.precision || 6;
                     this.angleMode = settings.angleMode || 'deg';
-                    this.currentMode = settings.currentMode || 'balance';
+                    this.currentMode = settings.currentMode || 'computational';
+                    this.currentComplexity = settings.currentComplexity || 'balance';
 
                     // Update UI
                     document.getElementById('soundToggle').checked = this.soundEnabled;
@@ -911,9 +1100,16 @@
                     document.getElementById('angleMode').value = this.angleMode;
 
                     // Update mode selection
-                    document.querySelectorAll('.mode-option').forEach(opt => {
+                    document.querySelectorAll('.mode-option[data-mode]').forEach(opt => {
                         opt.classList.remove('active');
                         if (opt.dataset.mode === this.currentMode) {
+                            opt.classList.add('active');
+                        }
+                    });
+
+                    document.querySelectorAll('.mode-option[data-complexity]').forEach(opt => {
+                        opt.classList.remove('active');
+                        if (opt.dataset.complexity === this.currentComplexity) {
                             opt.classList.add('active');
                         }
                     });
