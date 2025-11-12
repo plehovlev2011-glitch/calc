@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Калькулятор</title>
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: 'Ubuntu Mono', monospace;
+            background: #ffffff;
+            color: #000000;
+            overflow: hidden;
+            touch-action: pan-y;
+        }
+
+        .app-container {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 8px;
+            gap: 8px;
+        }
+
+        /* Display */
+        .display-container {
+            flex: 1;
+            background: #f8f9fa;
+            border-radius: 24px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            min-height: 120px;
+            position: relative;
+        }
+
+        .memory-indicator {
+            position: absolute;
+            top: 12px;
+            left: 20px;
+            font-size: 12px;
+            color: #666;
+        }
+
+        .expression {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 12px;
+            word-wrap: break-word;
+            overflow-x: auto;
+            white-space: nowrap;
+        }
+
+        .result {
+            font-size: 32px;
+            font-weight: 700;
+            color: #000000;
+            text-align: right;
+            word-wrap: break-word;
+            overflow-x: auto;
+        }
+
+        /* Mode Tabs */
+        .mode-tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-radius: 20px;
+            padding: 4px;
+            gap: 4px;
+        }
+
+        .mode-tab {
+            flex: 1;
+            padding: 12px 8px;
+            background: transparent;
+            border: none;
+            color: #000000;
+            font-size: 12px;
+            cursor: pointer;
+            border-radius: 16px;
+            transition: all 0.2s;
+            font-family: 'Ubuntu Mono', monospace;
+        }
+
+        .mode-tab.active {
+            background: #000000;
+            color: #ffffff;
+            font-weight: 700;
+        }
+
+        /* Content Area */
+        .content-area {
+            flex: 3;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .mode-content {
+            display: none;
+            height: 100%;
+            overflow-y: auto;
+        }
+
+        .mode-content.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Calculator Keyboard */
+        .calculator-keyboard {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            padding: 8px;
+        }
+
+        .calc-btn {
+            background: #000000;
+            border: none;
+            border-radius: 50%;
+            color: #ffffff;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.1s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            aspect-ratio: 1;
+            font-family: 'Ubuntu Mono', monospace;
+            font-weight: 700;
+        }
+
+        .calc-btn:active {
+            background: #333333;
+            transform: scale(0.95);
+        }
+
+        .calc-btn.operator {
+            background: #2d2d2d;
+        }
+
+        .calc-btn.function {
+            background: #404040;
+            font-size: 14px;
+        }
+
+        .calc-btn.memory {
+            background: #505050;
+            font-size: 12px;
+        }
+
+        .calc-btn.equals {
+            background: #000000;
+        }
+
+        .calc-btn.clear {
+            background: #404040;
+        }
+
+        /* Advanced Functions Panel */
+        .advanced-panel {
+            background: #f8f9fa;
+            padding: 12px;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+            border-radius: 20px;
+            margin: 8px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s;
+        }
+
+        .advanced-panel.open {
+            max-height: 300px;
+        }
+
+        .adv-btn {
+            background: #000000;
+            border: none;
+            padding: 12px 8px;
+            font-size: 12px;
+            border-radius: 16px;
+            cursor: pointer;
+            color: #ffffff;
+            transition: all 0.2s;
+            font-family: 'Ubuntu Mono', monospace;
+        }
+
+        .adv-btn:active {
+            background: #333333;
+        }
+
+        /* Fraction Calculator */
+        .fraction-calculator {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 16px;
+            gap: 12px;
+        }
+
+        .fraction-type-selector {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+
+        .fraction-type-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #000000;
+            background: #ffffff;
+            border-radius: 16px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+            font-family: 'Ubuntu Mono', monospace;
+            font-weight: 700;
+        }
+
+        .fraction-type-btn.active {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .fraction-inputs {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            padding: 16px;
+            background: #f8f9fa;
+            border-radius: 20px;
+        }
+
+        .fraction-display {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 60px;
+        }
+
+        .fraction-numerator, .fraction-denominator {
+            padding: 4px 12px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .fraction-line {
+            width: 100%;
+            height: 2px;
+            background: #000000;
+            margin: 2px 0;
+        }
+
+        .fraction-input {
+            width: 60px;
+            padding: 12px;
+            border: 2px solid #000000;
+            border-radius: 12px;
+            font-size: 16px;
+            text-align: center;
+            background: #ffffff;
+            color: #000000;
+            font-family: 'Ubuntu Mono', monospace;
+        }
+
+        .fraction-controls {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+        }
+
+        .fraction-result {
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 20px;
+            text-align: center;
+            border: 2px solid #000000;
+        }
+
+        .fraction-simplification {
+            background: #f8f9fa;
+            color: #000000;
+            padding: 12px;
+            border-radius: 16px;
+            font-size: 14px;
+            border: 2px solid #000000;
+        }
+
+        .simplification-steps {
+            margin-top: 8px;
+        }
+
+        .fraction-step {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin: 8px 0;
+        }
+
+        .crossed-number {
+            position: relative;
+            display: inline-block;
+            padding: 0 4px;
+        }
+
+        .crossed-number::before {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: #000000;
+            transform: rotate(-15deg);
+        }
+
+        .fraction-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 16px;
+            border: 2px solid #000000;
+            border-radius: 16px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Ubuntu Mono', monospace;
+            font-weight: 700;
+        }
+
+        .action-btn.primary {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        .action-btn.secondary {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .action-btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Memory Panel */
+        .memory-panel {
+            background: #f8f9fa;
+            padding: 12px;
+            border-radius: 20px;
+            margin: 8px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s;
+        }
+
+        .memory-panel.open {
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 8px;
+        }
+
+        .memory-cell {
+            padding: 8px;
+            background: #ffffff;
+            border: 1px solid #000000;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .memory-cell:active {
+            background: #f0f0f0;
+        }
+
+        .memory-cell.used {
+            background: #000000;
+            color: #ffffff;
+        }
+
+        /* Graph Container */
+        .graph-container {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: #f8f9fa;
+            border-radius: 20px;
+            touch-action: none;
+        }
+
+        #graphCanvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+            border-radius: 20px;
+        }
+
+        /* Solver Container */
+        .solver-container {
+            padding: 16px;
+            overflow-y: auto;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .solver-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .solver-input-group label {
+            font-weight: 700;
+            color: #000000;
+        }
+
+        .solver-input-group input,
+        .solver-input-group select {
+            padding: 16px;
+            border: 2px solid #000000;
+            border-radius: 16px;
+            font-size: 16px;
+            background: #ffffff;
+            color: #000000;
+            font-family: 'Ubuntu Mono', monospace;
+        }
+
+        .solve-btn {
+            padding: 16px;
+            background: #000000;
+            color: #ffffff;
+            border: none;
+            border-radius: 16px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: 'Ubuntu Mono', monospace;
+        }
+
+        .solve-btn:active {
+            background: #333333;
+            transform: scale(0.98);
+        }
+
+        /* Responsive */
+        @media (min-width: 768px) {
+            .app-container {
+                max-width: 400px;
+                margin: 0 auto;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .display-container {
+                min-height: 80px;
+                padding: 12px;
+            }
+            
+            .result {
+                font-size: 24px;
+            }
+            
+            .calculator-keyboard {
+                grid-template-columns: repeat(6, 1fr);
+                gap: 6px;
+                padding: 6px;
+            }
+            
+            .calc-btn {
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Display -->
+        <div class="display-container">
+            <div class="memory-indicator" id="memoryIndicator">M</div>
+            <div class="expression" id="expression"></div>
+            <div class="result" id="result">0</div>
+        </div>
+
+        <!-- Mode Tabs -->
+        <div class="mode-tabs">
+            <button class="mode-tab active" data-mode="calculator">Калькулятор</button>
+            <button class="mode-tab" data-mode="fractions">Дроби</button>
+            <button class="mode-tab" data-mode="memory">Память</button>
+            <button class="mode-tab" data-mode="solver">Решатель</button>
+        </div>
+
+        <!-- Content Area -->
+        <div class="content-area">
+            <!-- Calculator Mode -->
+            <div class="mode-content active" id="calculator-mode">
+                <!-- Memory Panel -->
+                <div class="memory-panel" id="memoryPanel">
+                    <div class="memory-grid" id="memoryGrid">
+                        <!-- Memory cells will be generated here -->
+                    </div>
+                </div>
+
+                <!-- Advanced Functions Panel -->
+                <div class="advanced-panel" id="advancedPanel">
+                    <button class="adv-btn" data-func="sin">sin</button>
+                    <button class="adv-btn" data-func="cos">cos</button>
+                    <button class="adv-btn" data-func="tan">tan</button>
+                    <button class="adv-btn" data-func="sin⁻¹">sin⁻¹</button>
+                    <button class="adv-btn" data-func="cos⁻¹">cos⁻¹</button>
+                    
+                    <button class="adv-btn" data-func="sinh">sinh</button>
+                    <button class="adv-btn" data-func="cosh">cosh</button>
+                    <button class="adv-btn" data-func="tanh">tanh</button>
+                    <button class="adv-btn" data-func="log">log</button>
+                    <button class="adv-btn" data-func="ln">ln</button>
+                    
+                    <button class="adv-btn" data-func="√">√</button>
+                    <button class="adv-btn" data-func="³√">³√</button>
+                    <button class="adv-btn" data-func="x²">x²</button>
+                    <button class="adv-btn" data-func="x³">x³</button>
+                    <button class="adv-btn" data-func="x^y">x^y</button>
+                    
+                    <button class="adv-btn" data-func="π">π</button>
+                    <button class="adv-btn" data-func="e">e</button>
+                    <button class="adv-btn" data-func="nCr">nCr</button>
+                    <button class="adv-btn" data-func="nPr">nPr</button>
+                    <button class="adv-btn" data-func="hyp">hyp</button>
+                    
+                    <button class="adv-btn" data-func="Pol(">Pol(</button>
+                    <button class="adv-btn" data-func="Rec(">Rec(</button>
+                    <button class="adv-btn" data-func="S⇄D">S⇄D</button>
+                    <button class="adv-btn" data-func="(--)">(--)</button>
+                    <button class="adv-btn" data-func="Ans">Ans</button>
+                </div>
+
+                <!-- Calculator Keyboard -->
+                <div class="calculator-keyboard">
+                    <button class="calc-btn memory" data-action="mc">MC</button>
+                    <button class="calc-btn memory" data-action="mr">MR</button>
+                    <button class="calc-btn memory" data-action="m+">M+</button>
+                    <button class="calc-btn memory" data-action="m-">M-</button>
+                    <button class="calc-btn clear" data-action="clear">C</button>
+
+                    <button class="calc-btn function" data-action="backspace">⌫</button>
+                    <button class="calc-btn function" data-action="percent">%</button>
+                    <button class="calc-btn function" data-action="sqrt">√</button>
+                    <button class="calc-btn function" data-action="power">x²</button>
+                    <button class="calc-btn operator" data-action="divide">/</button>
+
+                    <button class="calc-btn" data-value="7">7</button>
+                    <button class="calc-btn" data-value="8">8</button>
+                    <button class="calc-btn" data-value="9">9</button>
+                    <button class="calc-btn function" data-action="memory-toggle">M</button>
+                    <button class="calc-btn operator" data-action="multiply">×</button>
+
+                    <button class="calc-btn" data-value="4">4</button>
+                    <button class="calc-btn" data-value="5">5</button>
+                    <button class="calc-btn" data-value="6">6</button>
+                    <button class="calc-btn function" data-action="advanced-toggle">f(x)</button>
+                    <button class="calc-btn operator" data-action="subtract">−</button>
+
+                    <button class="calc-btn" data-value="1">1</button>
+                    <button class="calc-btn" data-value="2">2</button>
+                    <button class="calc-btn" data-value="3">3</button>
+                    <button class="calc-btn function" data-action="alpha">A</button>
+                    <button class="calc-btn operator" data-action="add">+</button>
+
+                    <button class="calc-btn function" data-action="negate">(-)</button>
+                    <button class="calc-btn" data-value="0">0</button>
+                    <button class="calc-btn" data-value=".">,</button>
+                    <button class="calc-btn function" data-action="fraction">a b/c</button>
+                    <button class="calc-btn equals" data-action="equals">=</button>
+                </div>
+            </div>
+
+            <!-- Fractions Mode -->
+            <div class="mode-content" id="fractions-mode">
+                <div class="fraction-calculator">
+                    <div class="fraction-type-selector">
+                        <button class="fraction-type-btn active" data-type="proper">a/b</button>
+                        <button class="fraction-type-btn" data-type="mixed">n a/b</button>
+                        <button class="fraction-type-btn" data-type="decimal">0,00</button>
+                    </div>
+
+                    <div class="fraction-inputs" id="fractionInputs">
+                        <div class="fraction-display">
+                            <div class="fraction-numerator" id="num1">1</div>
+                            <div class="fraction-line"></div>
+                            <div class="fraction-denominator" id="den1">2</div>
+                        </div>
+                        <select class="fraction-input" id="fracOperator">
+                            <option value="+">+</option>
+                            <option value="-">−</option>
+                            <option value="*">×</option>
+                            <option value="/">÷</option>
+                        </select>
+                        <div class="fraction-display">
+                            <div class="fraction-numerator" id="num2">1</div>
+                            <div class="fraction-line"></div>
+                            <div class="fraction-denominator" id="den2">3</div>
+                        </div>
+                        <span>=</span>
+                        <div class="fraction-display" id="resultFraction">
+                            <div class="fraction-numerator">?</div>
+                            <div class="fraction-line"></div>
+                            <div class="fraction-denominator">?</div>
+                        </div>
+                    </div>
+
+                    <div class="fraction-controls">
+                        <input type="number" class="fraction-input" id="inputNum1" value="1">
+                        <input type="number" class="fraction-input" id="inputDen1" value="2">
+                        <input type="number" class="fraction-input" id="inputNum2" value="1">
+                        <input type="number" class="fraction-input" id="inputDen2" value="3">
+                    </div>
+
+                    <div class="fraction-result" id="fractionResult">
+                        =
+                    </div>
+
+                    <div class="fraction-simplification" id="simplificationPanel" style="display: none;">
+                        <strong>Сокращение:</strong>
+                        <div class="simplification-steps" id="simplificationSteps"></div>
+                    </div>
+
+                    <div class="fraction-actions">
+                        <button class="action-btn secondary" id="simplifyBtn">Сократить</button>
+                        <button class="action-btn primary" id="calculateFractions">Вычислить</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Memory Mode -->
+            <div class="mode-content" id="memory-mode">
+                <div class="solver-container">
+                    <div class="solver-input-group">
+                        <label>Управление памятью:</label>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                            <button class="solve-btn" data-action="memory-clear-all">Очистить всё</button>
+                            <button class="solve-btn" data-action="memory-recover">Восстановить</button>
+                        </div>
+                    </div>
+                    
+                    <div class="solver-input-group">
+                        <label>Ячейки памяти (0-99):</label>
+                        <div class="memory-grid" style="grid-template-columns: repeat(10, 1fr); max-height: 300px; overflow-y: auto;">
+                            <!-- Memory cells will be generated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Solver Mode -->
+            <div class="mode-content" id="solver-mode">
+                <div class="solver-container">
+                    <div class="solver-input-group">
+                        <label>Тип:</label>
+                        <select id="solverType">
+                            <option value="equation">Уравнение</option>
+                            <option value="derivative">Производная</option>
+                        </select>
+                    </div>
+
+                    <div class="solver-input-group">
+                        <label>Выражение:</label>
+                        <input type="text" id="solverExpression" placeholder="x^2 + 2x + 1">
+                    </div>
+
+                    <button class="solve-btn" id="solveBtn">Решить</button>
+
+                    <div class="fraction-result" id="solutionSteps" style="display: none;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
+    <script>
+        class Calculator {
+            constructor() {
+                this.expression = '';
+                this.result = '0';
+                this.memory = Array(100).fill(null);
+                this.currentMemory = 0;
+                this.alphaMode = false;
+                this.lastAnswer = null;
+                this.initializeElements();
+                this.attachEventListeners();
+                this.fractionCalculator = new FractionCalculator();
+                this.generateMemoryCells();
+                this.updateMemoryIndicator();
+            }
+
+            initializeElements() {
+                this.expressionDisplay = document.getElementById('expression');
+                this.resultDisplay = document.getElementById('result');
+                this.advancedPanel = document.getElementById('advancedPanel');
+                this.memoryPanel = document.getElementById('memoryPanel');
+                this.memoryIndicator = document.getElementById('memoryIndicator');
+            }
+
+            attachEventListeners() {
+                // Mode tabs
+                document.querySelectorAll('.mode-tab').forEach(tab => {
+                    tab.addEventListener('click', () => this.switchMode(tab.dataset.mode));
+                });
+
+                // Calculator buttons
+                document.querySelectorAll('.calc-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const value = btn.dataset.value;
+                        const action = btn.dataset.action;
+
+                        if (value !== undefined) {
+                            this.appendValue(value);
+                        } else if (action) {
+                            this.handleAction(action);
+                        }
+                    });
+                });
+
+                // Advanced function buttons
+                document.querySelectorAll('.adv-btn').forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.insertFunction(btn.dataset.func);
+                    });
+                });
+
+                // Memory buttons in memory mode
+                document.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('memory-cell')) {
+                        const index = parseInt(e.target.dataset.index);
+                        this.useMemoryCell(index);
+                    }
+                });
+
+                // Memory management buttons
+                document.querySelectorAll('[data-action="memory-clear-all"], [data-action="memory-recover"]').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.handleMemoryAction(e.target.dataset.action);
+                    });
+                });
+
+                // Solver
+                document.getElementById('solveBtn').addEventListener('click', () => this.solve());
+            }
+
+            switchMode(mode) {
+                document.querySelectorAll('.mode-tab').forEach(tab => {
+                    tab.classList.toggle('active', tab.dataset.mode === mode);
+                });
+
+                document.querySelectorAll('.mode-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+
+                document.getElementById(`${mode}-mode`).classList.add('active');
+
+                if (mode === 'memory') {
+                    this.generateMemoryCells();
+                }
+            }
+
+            generateMemoryCells() {
+                const containers = document.querySelectorAll('.memory-grid');
+                containers.forEach(container => {
+                    container.innerHTML = '';
+                    for (let i = 0; i < 100; i++) {
+                        const cell = document.createElement('div');
+                        cell.className = `memory-cell ${this.memory[i] !== null ? 'used' : ''}`;
+                        cell.dataset.index = i;
+                        cell.textContent = `M${i}`;
+                        if (this.memory[i] !== null) {
+                            cell.title = this.memory[i];
+                        }
+                        container.appendChild(cell);
+                    }
+                });
+            }
+
+            updateMemoryIndicator() {
+                const usedCount = this.memory.filter(cell => cell !== null).length;
+                this.memoryIndicator.textContent = usedCount > 0 ? `M[${usedCount}]` : 'M';
+            }
+
+            handleMemoryAction(action) {
+                switch(action) {
+                    case 'memory-clear-all':
+                        this.memory = Array(100).fill(null);
+                        this.generateMemoryCells();
+                        this.updateMemoryIndicator();
+                        break;
+                    case 'memory-recover':
+                        // Восстановление последней операции (упрощенная версия)
+                        if (this.lastAnswer !== null) {
+                            this.expression = this.lastAnswer.toString();
+                            this.updateDisplay();
+                        }
+                        break;
+                }
+            }
+
+            useMemoryCell(index) {
+                if (this.memory[index] !== null) {
+                    this.expression += this.memory[index];
+                    this.updateDisplay();
+                }
+            }
+
+            appendValue(value) {
+                if (this.result !== '0' && this.expression === '') {
+                    this.expression = this.result;
+                }
+                
+                if (this.alphaMode) {
+                    // В режиме Alpha добавляем буквы
+                    this.expression += String.fromCharCode(65 + parseInt(value));
+                } else {
+                    this.expression += value;
+                }
+                this.updateDisplay();
+            }
+
+            handleAction(action) {
+                switch(action) {
+                    case 'clear':
+                        this.expression = '';
+                        this.result = '0';
+                        break;
+                    case 'backspace':
+                        this.expression = this.expression.slice(0, -1);
+                        break;
+                    case 'equals':
+                        this.calculate();
+                        return;
+                    case 'add':
+                        this.expression += '+';
+                        break;
+                    case 'subtract':
+                        this.expression += '-';
+                        break;
+                    case 'multiply':
+                        this.expression += '*';
+                        break;
+                    case 'divide':
+                        this.expression += '/';
+                        break;
+                    case 'percent':
+                        this.expression += '/100';
+                        break;
+                    case 'sqrt':
+                        this.expression += 'sqrt(';
+                        break;
+                    case 'power':
+                        this.expression += '^2';
+                        break;
+                    case 'advanced-toggle':
+                        this.advancedPanel.classList.toggle('open');
+                        break;
+                    case 'memory-toggle':
+                        this.memoryPanel.classList.toggle('open');
+                        break;
+                    case 'alpha':
+                        this.alphaMode = !this.alphaMode;
+                        break;
+                    case 'negate':
+                        this.expression += '*(-1)';
+                        break;
+                    case 'fraction':
+                        this.switchMode('fractions');
+                        return;
+                    case 'mc': // Memory Clear
+                        this.memory[this.currentMemory] = null;
+                        this.generateMemoryCells();
+                        this.updateMemoryIndicator();
+                        break;
+                    case 'mr': // Memory Read
+                        if (this.memory[this.currentMemory] !== null) {
+                            this.expression += this.memory[this.currentMemory];
+                            this.updateDisplay();
+                        }
+                        break;
+                    case 'm+': // Memory Add
+                        this.calculate();
+                        if (this.result !== 'Error') {
+                            const currentValue = this.memory[this.currentMemory] || 0;
+                            this.memory[this.currentMemory] = currentValue + parseFloat(this.result);
+                            this.generateMemoryCells();
+                            this.updateMemoryIndicator();
+                        }
+                        break;
+                    case 'm-': // Memory Subtract
+                        this.calculate();
+                        if (this.result !== 'Error') {
+                            const currentValue = this.memory[this.currentMemory] || 0;
+                            this.memory[this.currentMemory] = currentValue - parseFloat(this.result);
+                            this.generateMemoryCells();
+                            this.updateMemoryIndicator();
+                        }
+                        break;
+                }
+                this.updateDisplay();
+            }
+
+            insertFunction(func) {
+                const functions = {
+                    'sin': 'sin(',
+                    'cos': 'cos(',
+                    'tan': 'tan(',
+                    'sin⁻¹': 'asin(',
+                    'cos⁻¹': 'acos(',
+                    'sinh': 'sinh(',
+                    'cosh': 'cosh(',
+                    'tanh': 'tanh(',
+                    'log': 'log10(',
+                    'ln': 'log(',
+                    '√': 'sqrt(',
+                    '³√': 'cbrt(',
+                    'x²': '^2',
+                    'x³': '^3',
+                    'x^y': '^',
+                    'π': 'pi',
+                    'e': 'e',
+                    'nCr': this.insertCombinatorics.bind(this, 'comb'),
+                    'nPr': this.insertCombinatorics.bind(this, 'perm'),
+                    'hyp': this.insertHyp.bind(this),
+                    'Pol(': 'Pol(',
+                    'Rec(': 'Rec(',
+                    'S⇄D': this.switchDecimalFraction.bind(this),
+                    '(--)': '*(-1)',
+                    'Ans': this.insertAnswer.bind(this)
+                };
+
+                if (functions[func]) {
+                    if (typeof functions[func] === 'function') {
+                        functions[func]();
+                    } else {
+                        this.expression += functions[func];
+                    }
+                }
+                this.updateDisplay();
+            }
+
+            insertCombinatorics(type) {
+                this.expression += type === 'comb' ? 'combinations(' : 'permutations(';
+            }
+
+            insertHyp() {
+                this.expression += 'sqrt(x^2+y^2)';
+            }
+
+            insertAnswer() {
+                if (this.lastAnswer !== null) {
+                    this.expression += this.lastAnswer.toString();
+                }
+            }
+
+            switchDecimalFraction() {
+                if (this.result.includes('/')) {
+                    // Дробь в десятичную
+                    const parts = this.result.split('/');
+                    const decimal = parseFloat(parts[0]) / parseFloat(parts[1]);
+                    this.result = this.formatNumber(decimal);
+                } else {
+                    // Десятичную в дробь
+                    const decimal = parseFloat(this.result);
+                    const fraction = this.decimalToFraction(decimal);
+                    this.result = `${fraction[0]}/${fraction[1]}`;
+                }
+                this.updateDisplay();
+            }
+
+            decimalToFraction(decimal) {
+                const tolerance = 1.0E-6;
+                let numerator = 1;
+                let denominator = 1;
+                let fraction = numerator / denominator;
+                
+                while (Math.abs(fraction - decimal) > tolerance) {
+                    if (fraction < decimal) {
+                        numerator++;
+                    } else {
+                        denominator++;
+                        numerator = Math.round(decimal * denominator);
+                    }
+                    fraction = numerator / denominator;
+                }
+                return [numerator, denominator];
+            }
+
+            calculate() {
+                try {
+                    let expr = this.expression;
+                    
+                    // Заменяем запятые на точки для math.js
+                    expr = expr.replace(/,/g, '.');
+                    
+                    const result = math.evaluate(expr);
+                    this.lastAnswer = result;
+                    this.result = this.formatNumber(result);
+                    this.expression = '';
+                } catch (error) {
+                    this.result = 'Ошибка';
+                    setTimeout(() => {
+                        this.result = '0';
+                        this.updateDisplay();
+                    }, 2000);
+                }
+                this.updateDisplay();
+            }
+
+            formatNumber(num) {
+                if (Math.abs(num) < 1e-10) return '0';
+                if (Math.abs(num) > 1e10 || Math.abs(num) < 1e-4) {
+                    return num.toExponential(6).replace(/\./g, ',');
+                }
+                return parseFloat(num.toFixed(6)).toString().replace(/\./g, ',');
+            }
+
+            updateDisplay() {
+                this.expressionDisplay.textContent = this.expression || '';
+                this.resultDisplay.textContent = this.result;
+            }
+
+            solve() {
+                const type = document.getElementById('solverType').value;
+                const expression = document.getElementById('solverExpression').value;
+
+                if (!expression) return;
+
+                const container = document.getElementById('solutionSteps');
+                container.style.display = 'block';
+
+                try {
+                    let result;
+                    switch(type) {
+                        case 'equation':
+                            result = this.solveEquation(expression);
+                            break;
+                        case 'derivative':
+                            result = math.derivative(expression, 'x').toString();
+                            break;
+                    }
+                    container.textContent = result;
+                } catch (error) {
+                    container.textContent = 'Ошибка: ' + error.message;
+                }
+            }
+
+            solveEquation(expr) {
+                try {
+                    const solutions = [];
+                    for (let x = -10; x <= 10; x++) {
+                        try {
+                            const value = math.evaluate(expr.replace(/x/g, `(${x})`));
+                            if (Math.abs(value) < 1e-10) {
+                                solutions.push(x);
+                            }
+                        } catch (e) {}
+                    }
+                    return solutions.length > 0 ? `x = ${solutions.join(', ')}` : 'Решений не найдено';
+                } catch (error) {
+                    return 'Ошибка решения уравнения';
+                }
+            }
+        }
+
+        // FractionCalculator class остается без изменений как в предыдущем коде
+        class FractionCalculator {
+            constructor() {
+                this.currentType = 'proper';
+                this.initializeFractionElements();
+                this.attachFractionEventListeners();
+                this.updateFractionDisplay();
+            }
+
+            initializeFractionElements() {
+                this.fractionTypeBtns = document.querySelectorAll('.fraction-type-btn');
+                this.inputNum1 = document.getElementById('inputNum1');
+                this.inputDen1 = document.getElementById('inputDen1');
+                this.inputNum2 = document.getElementById('inputNum2');
+                this.inputDen2 = document.getElementById('inputDen2');
+                this.fracOperator = document.getElementById('fracOperator');
+                this.fractionResult = document.getElementById('fractionResult');
+                this.simplificationPanel = document.getElementById('simplificationPanel');
+                this.simplificationSteps = document.getElementById('simplificationSteps');
+            }
+
+            attachFractionEventListeners() {
+                this.fractionTypeBtns.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        this.fractionTypeBtns.forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        this.currentType = btn.dataset.type;
+                        this.switchFractionType(this.currentType);
+                    });
+                });
+
+                [this.inputNum1, this.inputDen1, this.inputNum2, this.inputDen2].forEach(input => {
+                    input.addEventListener('input', () => this.updateFractionDisplay());
+                });
+
+                this.fracOperator.addEventListener('change', () => this.updateFractionDisplay());
+                document.getElementById('calculateFractions').addEventListener('click', () => this.calculateFractions());
+                document.getElementById('simplifyBtn').addEventListener('click', () => this.showSimplification());
+            }
+
+            switchFractionType(type) {
+                const inputsContainer = document.getElementById('fractionInputs');
+                
+                if (type === 'decimal') {
+                    inputsContainer.innerHTML = `
+                        <input type="number" class="fraction-input" id="decimal1" value="0,5" step="0,01">
+                        <select class="fraction-input" id="fracOperator">
+                            <option value="+">+</option>
+                            <option value="-">−</option>
+                            <option value="*">×</option>
+                            <option value="/">÷</option>
+                        </select>
+                        <input type="number" class="fraction-input" id="decimal2" value="0,333" step="0,001">
+                        <span>=</span>
+                        <div class="fraction-input">?</div>
+                    `;
+                    this.attachDecimalListeners();
+                } else {
+                    inputsContainer.innerHTML = `
+                        <div class="fraction-display">
+                            <div class="fraction-numerator" id="num1">1</div>
+                            <div class="fraction-line"></div>
+                            <div class="fraction-denominator" id="den1">2</div>
+                        </div>
+                        <select class="fraction-input" id="fracOperator">
+                            <option value="+">+</option>
+                            <option value="-">−</option>
+                            <option value="*">×</option>
+                            <option value="/">÷</option>
+                        </select>
+                        <div class="fraction-display">
+                            <div class="fraction-numerator" id="num2">1</div>
+                            <div class="fraction-line"></div>
+                            <div class="fraction-denominator" id="den2">3</div>
+                        </div>
+                        <span>=</span>
+                        <div class="fraction-display" id="resultFraction">
+                            <div class="fraction-numerator">?</div>
+                            <div class="fraction-line"></div>
+                            <div class="fraction-denominator">?</div>
+                        </div>
+                    `;
+                }
+                this.initializeFractionElements();
+                this.updateFractionDisplay();
+            }
+
+            attachDecimalListeners() {
+                const decimal1 = document.getElementById('decimal1');
+                const decimal2 = document.getElementById('decimal2');
+                const op = document.getElementById('fracOperator');
+                
+                if (decimal1 && decimal2 && op) {
+                    [decimal1, decimal2, op].forEach(el => {
+                        el.addEventListener('input', () => this.updateDecimalDisplay());
+                    });
+                }
+            }
+
+            updateFractionDisplay() {
+                if (this.currentType === 'decimal') {
+                    this.updateDecimalDisplay();
+                    return;
+                }
+
+                document.getElementById('num1').textContent = this.inputNum1.value;
+                document.getElementById('den1').textContent = this.inputDen1.value;
+                document.getElementById('num2').textContent = this.inputNum2.value;
+                document.getElementById('den2').textContent = this.inputDen2.value;
+            }
+
+            updateDecimalDisplay() {
+                const decimal1 = document.getElementById('decimal1');
+                const decimal2 = document.getElementById('decimal2');
+                if (!decimal1 || !decimal2) return;
+
+                const val1 = parseFloat(decimal1.value.replace(',', '.')) || 0;
+                const val2 = parseFloat(decimal2.value.replace(',', '.')) || 0;
+                const frac1 = this.decimalToFraction(val1);
+                const frac2 = this.decimalToFraction(val2);
+
+                const inputsContainer = document.getElementById('fractionInputs');
+                inputsContainer.innerHTML = `
+                    <div class="fraction-display">
+                        <div class="fraction-numerator">${frac1[0]}</div>
+                        <div class="fraction-line"></div>
+                        <div class="fraction-denominator">${frac1[1]}</div>
+                    </div>
+                    <select class="fraction-input" id="fracOperator">
+                        <option value="+">+</option>
+                        <option value="-">−</option>
+                        <option value="*">×</option>
+                        <option value="/">÷</option>
+                    </select>
+                    <div class="fraction-display">
+                        <div class="fraction-numerator">${frac2[0]}</div>
+                        <div class="fraction-line"></div>
+                        <div class="fraction-denominator">${frac2[1]}</div>
+                    </div>
+                    <span>=</span>
+                    <div class="fraction-display" id="resultFraction">
+                        <div class="fraction-numerator">?</div>
+                        <div class="fraction-line"></div>
+                        <div class="fraction-denominator">?</div>
+                    </div>
+                `;
+                document.getElementById('fracOperator').value = this.fracOperator.value;
+                this.attachDecimalListeners();
+            }
+
+            decimalToFraction(decimal) {
+                const tolerance = 1.0E-6;
+                let numerator = 1;
+                let denominator = 1;
+                let fraction = numerator / denominator;
+                
+                while (Math.abs(fraction - decimal) > tolerance) {
+                    if (fraction < decimal) {
+                        numerator++;
+                    } else {
+                        denominator++;
+                        numerator = Math.round(decimal * denominator);
+                    }
+                    fraction = numerator / denominator;
+                }
+                return [numerator, denominator];
+            }
+
+            calculateFractions() {
+                try {
+                    let result;
+                    
+                    if (this.currentType === 'decimal') {
+                        result = this.calculateDecimalFractions();
+                    } else {
+                        result = this.calculateProperFractions();
+                    }
+
+                    this.displayResult(result);
+                    this.simplificationPanel.style.display = 'none';
+                } catch (error) {
+                    this.fractionResult.textContent = 'Ошибка';
+                }
+            }
+
+            calculateProperFractions() {
+                const num1 = parseInt(this.inputNum1.value) || 0;
+                const den1 = parseInt(this.inputDen1.value) || 1;
+                const num2 = parseInt(this.inputNum2.value) || 0;
+                const den2 = parseInt(this.inputDen2.value) || 1;
+                const operator = this.fracOperator.value;
+
+                if (den1 === 0 || den2 === 0) throw new Error('Нулевой знаменатель');
+
+                let resultNum, resultDen;
+
+                switch(operator) {
+                    case '+':
+                        resultNum = num1 * den2 + num2 * den1;
+                        resultDen = den1 * den2;
+                        break;
+                    case '-':
+                        resultNum = num1 * den2 - num2 * den1;
+                        resultDen = den1 * den2;
+                        break;
+                    case '*':
+                        resultNum = num1 * num2;
+                        resultDen = den1 * den2;
+                        break;
+                    case '/':
+                        resultNum = num1 * den2;
+                        resultDen = den1 * num2;
+                        break;
+                }
+
+                return { numerator: resultNum, denominator: resultDen };
+            }
+
+            calculateDecimalFractions() {
+                const decimal1 = parseFloat(document.getElementById('decimal1').value.replace(',', '.')) || 0;
+                const decimal2 = parseFloat(document.getElementById('decimal2').value.replace(',', '.')) || 0;
+                const operator = document.getElementById('fracOperator').value;
+
+                let result;
+                switch(operator) {
+                    case '+': result = decimal1 + decimal2; break;
+                    case '-': result = decimal1 - decimal2; break;
+                    case '*': result = decimal1 * decimal2; break;
+                    case '/': result = decimal2 !== 0 ? decimal1 / decimal2 : NaN; break;
+                }
+
+                if (isNaN(result)) throw new Error('Неверная операция');
+                const fraction = this.decimalToFraction(result);
+                return { numerator: fraction[0], denominator: fraction[1], decimal: result };
+            }
+
+            displayResult(result) {
+                const simplified = this.simplifyFraction(result.numerator, result.denominator);
+                
+                let resultHTML = `
+                    <div class="fraction-display" style="margin: 0 auto;">
+                        <div class="fraction-numerator">${simplified.numerator}</div>
+                        <div class="fraction-line"></div>
+                        <div class="fraction-denominator">${simplified.denominator}</div>
+                    </div>
+                `;
+
+                if (this.currentType === 'decimal' && result.decimal !== undefined) {
+                    resultHTML += `
+                        <div style="margin-top: 8px; font-size: 14px; color: #666;">
+                            ${result.decimal.toFixed(6).replace('.', ',')}
+                        </div>
+                    `;
+                }
+
+                if (simplified.numerator >= simplified.denominator && simplified.denominator > 1) {
+                    const whole = Math.floor(simplified.numerator / simplified.denominator);
+                    const remainder = simplified.numerator % simplified.denominator;
+                    if (remainder > 0) {
+                        resultHTML += `
+                            <div style="margin-top: 8px; font-size: 14px; color: #666;">
+                                ${whole} ${remainder}/${simplified.denominator}
+                            </div>
+                        `;
+                    }
+                }
+
+                this.fractionResult.innerHTML = resultHTML;
+
+                const resultFraction = document.getElementById('resultFraction');
+                if (resultFraction) {
+                    resultFraction.innerHTML = `
+                        <div class="fraction-numerator">${simplified.numerator}</div>
+                        <div class="fraction-line"></div>
+                        <div class="fraction-denominator">${simplified.denominator}</div>
+                    `;
+                }
+            }
+
+            simplifyFraction(numerator, denominator) {
+                const gcd = this.calculateGCD(numerator, denominator);
+                return {
+                    numerator: numerator / gcd,
+                    denominator: denominator / gcd
+                };
+            }
+
+            calculateGCD(a, b) {
+                a = Math.abs(a);
+                b = Math.abs(b);
+                while (b !== 0) {
+                    const temp = b;
+                    b = a % b;
+                    a = temp;
+                }
+                return a;
+            }
+
+            showSimplification() {
+                try {
+                    let numerator, denominator;
+                    
+                    if (this.currentType === 'decimal') {
+                        const decimal = parseFloat(document.getElementById('decimal1').value.replace(',', '.')) || 0;
+                        const fraction = this.decimalToFraction(decimal);
+                        numerator = fraction[0];
+                        denominator = fraction[1];
+                    } else {
+                        numerator = parseInt(this.inputNum1.value) || 0;
+                        denominator = parseInt(this.inputDen1.value) || 1;
+                    }
+
+                    if (denominator === 0) throw new Error('Нулевой знаменатель');
+
+                    const gcd = this.calculateGCD(numerator, denominator);
+                    const simplifiedNum = numerator / gcd;
+                    const simplifiedDen = denominator / gcd;
+
+                    let stepsHTML = '';
+
+                    if (gcd > 1) {
+                        stepsHTML = `
+                            <div class="fraction-step">
+                                <span>${numerator}/${denominator}</span>
+                            </div>
+                            <div class="fraction-step">
+                                <span>НОД = ${gcd}</span>
+                            </div>
+                            <div class="fraction-step">
+                                <div class="fraction-display" style="display: inline-flex;">
+                                    <div class="fraction-numerator">
+                                        <span class="crossed-number">${numerator}</span> → ${simplifiedNum}
+                                    </div>
+                                    <div class="fraction-line"></div>
+                                    <div class="fraction-denominator">
+                                        <span class="crossed-number">${denominator}</span> → ${simplifiedDen}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        stepsHTML = `
+                            <div class="fraction-step">
+                                <span>Уже сокращена</span>
+                            </div>
+                            <div class="fraction-step">
+                                <span>НОД = 1</span>
+                            </div>
+                        `;
+                    }
+
+                    this.simplificationSteps.innerHTML = stepsHTML;
+                    this.simplificationPanel.style.display = 'block';
+                } catch (error) {
+                    this.simplificationSteps.innerHTML = 'Ошибка';
+                    this.simplificationPanel.style.display = 'block';
+                }
+            }
+        }
+
+        // Инициализация калькулятора
+        document.addEventListener('DOMContentLoaded', () => {
+            window.calculator = new Calculator();
+        });
+    </script>
+</body>
+</html>
