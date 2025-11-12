@@ -29,6 +29,31 @@
             gap: 8px;
         }
 
+        /* Header */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 8px;
+        }
+
+        .header-btn {
+            background: #000000;
+            border: none;
+            border-radius: 12px;
+            color: #ffffff;
+            padding: 10px 16px;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: 'Ubuntu Mono', monospace;
+            font-weight: 700;
+        }
+
+        .header-btn:active {
+            background: #333333;
+            transform: scale(0.95);
+        }
+
         /* Display */
         .display-container {
             flex: 1;
@@ -68,52 +93,6 @@
             overflow-x: auto;
         }
 
-        /* Mode Tabs */
-        .mode-tabs {
-            display: flex;
-            background: #f8f9fa;
-            border-radius: 20px;
-            padding: 4px;
-            gap: 4px;
-        }
-
-        .mode-tab {
-            flex: 1;
-            padding: 12px 8px;
-            background: transparent;
-            border: none;
-            color: #000000;
-            font-size: 12px;
-            cursor: pointer;
-            border-radius: 16px;
-            transition: all 0.2s;
-            font-family: 'Ubuntu Mono', monospace;
-        }
-
-        .mode-tab.active {
-            background: #000000;
-            color: #ffffff;
-            font-weight: 700;
-        }
-
-        /* Content Area */
-        .content-area {
-            flex: 3;
-            overflow: hidden;
-            position: relative;
-        }
-
-        .mode-content {
-            display: none;
-            height: 100%;
-            overflow-y: auto;
-        }
-
-        .mode-content.active {
-            display: flex;
-            flex-direction: column;
-        }
-
         /* Calculator Keyboard */
         .calculator-keyboard {
             flex: 1;
@@ -126,7 +105,7 @@
         .calc-btn {
             background: #000000;
             border: none;
-            border-radius: 50%;
+            border-radius: 20px;
             color: #ffffff;
             font-size: 16px;
             cursor: pointer;
@@ -134,7 +113,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            aspect-ratio: 1;
+            min-height: 50px;
             font-family: 'Ubuntu Mono', monospace;
             font-weight: 700;
         }
@@ -166,37 +145,34 @@
             background: #404040;
         }
 
-        /* Advanced Functions Panel */
-        .advanced-panel {
-            background: #f8f9fa;
-            padding: 12px;
+        /* Scientific functions grid */
+        .scientific-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
             gap: 8px;
+            padding: 8px;
+            background: #f8f9fa;
             border-radius: 20px;
             margin: 8px;
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s;
         }
 
-        .advanced-panel.open {
-            max-height: 300px;
-        }
-
-        .adv-btn {
+        .sci-btn {
             background: #000000;
             border: none;
-            padding: 12px 8px;
-            font-size: 12px;
             border-radius: 16px;
-            cursor: pointer;
             color: #ffffff;
+            padding: 12px 8px;
+            font-size: 14px;
+            cursor: pointer;
             transition: all 0.2s;
             font-family: 'Ubuntu Mono', monospace;
+            min-height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .adv-btn:active {
+        .sci-btn:active {
             background: #333333;
         }
 
@@ -260,6 +236,37 @@
             margin-top: 4px;
         }
 
+        /* Settings Modal */
+        .settings-group {
+            margin-bottom: 20px;
+        }
+
+        .settings-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+
+        .settings-group select, .settings-group input[type="range"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #000000;
+            border-radius: 12px;
+            font-family: 'Ubuntu Mono', monospace;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+        }
+
         /* Responsive */
         @media (min-width: 768px) {
             .app-container {
@@ -286,6 +293,17 @@
             
             .calc-btn {
                 font-size: 14px;
+                min-height: 40px;
+                border-radius: 16px;
+            }
+
+            .scientific-grid {
+                grid-template-columns: repeat(6, 1fr);
+            }
+
+            .sci-btn {
+                min-height: 35px;
+                font-size: 12px;
             }
         }
 
@@ -306,12 +324,26 @@
         .calculator-keyboard.ovz .calc-btn {
             font-size: 24px;
             min-height: 80px;
-            border-radius: 20px;
+            border-radius: 25px;
+        }
+
+        .calculator-keyboard.middle .calc-btn {
+            border-radius: 18px;
+        }
+
+        .calculator-keyboard.gia .calc-btn {
+            border-radius: 16px;
         }
     </style>
 </head>
 <body>
     <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <button class="header-btn" id="modeBtn">MODE</button>
+            <button class="header-btn" id="settingsBtn">⋯</button>
+        </div>
+
         <!-- Display -->
         <div class="display-container">
             <div class="memory-indicator" id="memoryIndicator">M</div>
@@ -319,119 +351,70 @@
             <div class="result" id="result">0</div>
         </div>
 
-        <!-- Mode Tabs -->
-        <div class="mode-tabs">
-            <button class="mode-tab active" data-mode="calculator">простой</button>
-            <button class="mode-tab" data-mode="fractions">дроби</button>
-            <button class="mode-tab" data-mode="memory">мемори</button>
-            <button class="mode-tab" data-mode="solver">решалка</button>
+        <!-- Scientific Functions -->
+        <div class="scientific-grid" id="scientificPanel">
+            <button class="sci-btn" data-func="sin">sin</button>
+            <button class="sci-btn" data-func="cos">cos</button>
+            <button class="sci-btn" data-func="tan">tan</button>
+            <button class="sci-btn" data-func="sin⁻¹">sin⁻¹</button>
+            <button class="sci-btn" data-func="cos⁻¹">cos⁻¹</button>
+            
+            <button class="sci-btn" data-func="log">log</button>
+            <button class="sci-btn" data-func="ln">ln</button>
+            <button class="sci-btn" data-func="√">√</button>
+            <button class="sci-btn" data-func="x²">x²</button>
+            <button class="sci-btn" data-func="x^y">x^y</button>
+            
+            <button class="sci-btn" data-func="π">π</button>
+            <button class="sci-btn" data-func="e">e</button>
+            <button class="sci-btn" data-func="nCr">nCr</button>
+            <button class="sci-btn" data-func="nPr">nPr</button>
+            <button class="sci-btn" data-func="hyp">hyp</button>
+            
+            <button class="sci-btn" data-func="(--)">(-)</button>
+            <button class="sci-btn" data-func="Ans">Ans</button>
+            <button class="sci-btn" data-func="(">(</button>
+            <button class="sci-btn" data-func=")">)</button>
+            <button class="sci-btn" data-func=",">,</button>
         </div>
 
-        <!-- Content Area -->
-        <div class="content-area">
-            <!-- Calculator Mode -->
-            <div class="mode-content active" id="calculator-mode">
-                <!-- Memory Panel -->
-                <div class="memory-panel" id="memoryPanel">
-                    <div class="memory-grid" id="memoryGrid">
-                        <!-- Memory cells will be generated here -->
-                    </div>
-                </div>
+        <!-- Main Keyboard -->
+        <div class="calculator-keyboard" id="mainKeyboard">
+            <button class="calc-btn memory" data-action="mc">MC</button>
+            <button class="calc-btn memory" data-action="mr">MR</button>
+            <button class="calc-btn memory" data-action="m+">M+</button>
+            <button class="calc-btn memory" data-action="m-">M-</button>
+            <button class="calc-btn clear" data-action="clear">C</button>
 
-                <!-- Advanced Functions Panel -->
-                <div class="advanced-panel" id="advancedPanel">
-                    <button class="adv-btn" data-func="sin">sin</button>
-                    <button class="adv-btn" data-func="cos">cos</button>
-                    <button class="adv-btn" data-func="tan">tan</button>
-                    <button class="adv-btn" data-func="sin⁻¹">sin⁻¹</button>
-                    <button class="adv-btn" data-func="cos⁻¹">cos⁻¹</button>
-                    
-                    <button class="adv-btn" data-func="sinh">sinh</button>
-                    <button class="adv-btn" data-func="cosh">cosh</button>
-                    <button class="adv-btn" data-func="tanh">tanh</button>
-                    <button class="adv-btn" data-func="log">log</button>
-                    <button class="adv-btn" data-func="ln">ln</button>
-                    
-                    <button class="adv-btn" data-func="√">√</button>
-                    <button class="adv-btn" data-func="³√">³√</button>
-                    <button class="adv-btn" data-func="x²">x²</button>
-                    <button class="adv-btn" data-func="x³">x³</button>
-                    <button class="adv-btn" data-func="x^y">x^y</button>
-                    
-                    <button class="adv-btn" data-func="π">π</button>
-                    <button class="adv-btn" data-func="e">e</button>
-                    <button class="adv-btn" data-func="nCr">nCr</button>
-                    <button class="adv-btn" data-func="nPr">nPr</button>
-                    <button class="adv-btn" data-func="hyp">hyp</button>
-                    
-                    <button class="adv-btn" data-func="Pol(">Pol(</button>
-                    <button class="adv-btn" data-func="Rec(">Rec(</button>
-                    <button class="adv-btn" data-func="S⇄D">S⇄D</button>
-                    <button class="adv-btn" data-func="(--)">(--)</button>
-                    <button class="adv-btn" data-func="Ans">Ans</button>
-                </div>
+            <button class="calc-btn function" data-action="backspace">⌫</button>
+            <button class="calc-btn function" data-action="percent">%</button>
+            <button class="calc-btn function" data-action="1/x">1/x</button>
+            <button class="calc-btn function" data-action="factorial">x!</button>
+            <button class="calc-btn operator" data-action="divide">/</button>
 
-                <!-- Calculator Keyboard -->
-                <div class="calculator-keyboard" id="mainKeyboard">
-                    <button class="calc-btn memory" data-action="mc">MC</button>
-                    <button class="calc-btn memory" data-action="mr">MR</button>
-                    <button class="calc-btn memory" data-action="m+">M+</button>
-                    <button class="calc-btn memory" data-action="m-">M-</button>
-                    <button class="calc-btn clear" data-action="clear">C</button>
+            <button class="calc-btn" data-value="7">7</button>
+            <button class="calc-btn" data-value="8">8</button>
+            <button class="calc-btn" data-value="9">9</button>
+            <button class="calc-btn function" data-action="power">x²</button>
+            <button class="calc-btn operator" data-action="multiply">×</button>
 
-                    <button class="calc-btn function" data-action="backspace">⌫</button>
-                    <button class="calc-btn function" data-action="percent">%</button>
-                    <button class="calc-btn function" data-action="sqrt">√</button>
-                    <button class="calc-btn function" data-action="power">x²</button>
-                    <button class="calc-btn operator" data-action="divide">/</button>
+            <button class="calc-btn" data-value="4">4</button>
+            <button class="calc-btn" data-value="5">5</button>
+            <button class="calc-btn" data-value="6">6</button>
+            <button class="calc-btn function" data-action="sqrt">√</button>
+            <button class="calc-btn operator" data-action="subtract">−</button>
 
-                    <button class="calc-btn" data-value="7">7</button>
-                    <button class="calc-btn" data-value="8">8</button>
-                    <button class="calc-btn" data-value="9">9</button>
-                    <button class="calc-btn function" data-action="memory-toggle">M</button>
-                    <button class="calc-btn operator" data-action="multiply">×</button>
+            <button class="calc-btn" data-value="1">1</button>
+            <button class="calc-btn" data-value="2">2</button>
+            <button class="calc-btn" data-value="3">3</button>
+            <button class="calc-btn function" data-action="cube">x³</button>
+            <button class="calc-btn operator" data-action="add">+</button>
 
-                    <button class="calc-btn" data-value="4">4</button>
-                    <button class="calc-btn" data-value="5">5</button>
-                    <button class="calc-btn" data-value="6">6</button>
-                    <button class="calc-btn function" data-action="advanced-toggle">f(x)</button>
-                    <button class="calc-btn operator" data-action="subtract">−</button>
-
-                    <button class="calc-btn" data-value="1">1</button>
-                    <button class="calc-btn" data-value="2">2</button>
-                    <button class="calc-btn" data-value="3">3</button>
-                    <button class="calc-btn function" data-action="alpha">A</button>
-                    <button class="calc-btn operator" data-action="add">+</button>
-
-                    <button class="calc-btn function" data-action="negate">(-)</button>
-                    <button class="calc-btn" data-value="0">0</button>
-                    <button class="calc-btn" data-value=".">,</button>
-                    <button class="calc-btn function" data-action="fraction">a b/c</button>
-                    <button class="calc-btn equals" data-action="equals">=</button>
-                </div>
-            </div>
-
-            <!-- Other modes remain the same -->
-            <div class="mode-content" id="fractions-mode">
-                <div style="padding: 20px; text-align: center;">
-                    <h3>Режим дробей</h3>
-                    <p>Переключитесь в расширенный режим для работы с дробями</p>
-                </div>
-            </div>
-
-            <div class="mode-content" id="memory-mode">
-                <div style="padding: 20px; text-align: center;">
-                    <h3>Режим памяти</h3>
-                    <p>Переключитесь в расширенный режим для работы с памятью</p>
-                </div>
-            </div>
-
-            <div class="mode-content" id="solver-mode">
-                <div style="padding: 20px; text-align: center;">
-                    <h3>Режим решателя</h3>
-                    <p>Переключитесь в расширенный режим для решения уравнений</p>
-                </div>
-            </div>
+            <button class="calc-btn function" data-action="negate">±</button>
+            <button class="calc-btn" data-value="0">0</button>
+            <button class="calc-btn" data-value=".">,</button>
+            <button class="calc-btn function" data-action="equals">=</button>
+            <button class="calc-btn function" data-action="equals">=</button>
         </div>
     </div>
 
@@ -462,6 +445,55 @@
         </div>
     </div>
 
+    <!-- Settings Modal -->
+    <div class="modal" id="settingsModal">
+        <div class="modal-content">
+            <div class="modal-header">Настройки</div>
+            
+            <div class="settings-group">
+                <label>Звуки:</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="soundToggle" checked>
+                    <label for="soundToggle">Включить звуки нажатий</label>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <label>Вибрация:</label>
+                <div class="checkbox-group">
+                    <input type="checkbox" id="vibrationToggle" checked>
+                    <label for="vibrationToggle">Включить вибрацию</label>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <label>Размер кнопок:</label>
+                <input type="range" id="buttonSize" min="1" max="5" value="3">
+            </div>
+
+            <div class="settings-group">
+                <label>Точность вычислений:</label>
+                <select id="precisionSelect">
+                    <option value="2">2 знака</option>
+                    <option value="4">4 знака</option>
+                    <option value="6" selected>6 знаков</option>
+                    <option value="8">8 знаков</option>
+                    <option value="10">10 знаков</option>
+                </select>
+            </div>
+
+            <div class="settings-group">
+                <label>Угловая мера:</label>
+                <select id="angleMode">
+                    <option value="deg" selected>Градусы</option>
+                    <option value="rad">Радианы</option>
+                </select>
+            </div>
+
+            <button class="header-btn" style="width: 100%; margin-top: 20px;" id="closeSettings">Закрыть</button>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjs/11.11.0/math.min.js"></script>
     <script>
         class Calculator {
@@ -473,51 +505,52 @@
                 this.alphaMode = false;
                 this.lastAnswer = null;
                 this.currentMode = 'balance';
+                this.soundEnabled = true;
+                this.vibrationEnabled = true;
+                this.precision = 6;
+                this.angleMode = 'deg';
+                
                 this.initializeElements();
                 this.attachEventListeners();
-                this.setupModeSelection();
+                this.setupModals();
                 this.updateKeyboardForMode();
+                this.loadSettings();
             }
 
             initializeElements() {
                 this.expressionDisplay = document.getElementById('expression');
                 this.resultDisplay = document.getElementById('result');
-                this.advancedPanel = document.getElementById('advancedPanel');
-                this.memoryPanel = document.getElementById('memoryPanel');
                 this.memoryIndicator = document.getElementById('memoryIndicator');
                 this.mainKeyboard = document.getElementById('mainKeyboard');
+                this.scientificPanel = document.getElementById('scientificPanel');
                 this.modeModal = document.getElementById('modeModal');
+                this.settingsModal = document.getElementById('settingsModal');
             }
 
-            setupModeSelection() {
-                let holdTimer;
-                const simpleTab = document.querySelector('[data-mode="calculator"]');
-                
-                simpleTab.addEventListener('touchstart', (e) => {
-                    holdTimer = setTimeout(() => {
-                        this.modeModal.classList.add('active');
-                    }, 2000);
+            setupModals() {
+                // Mode button
+                document.getElementById('modeBtn').addEventListener('click', () => {
+                    this.modeModal.classList.add('active');
                 });
 
-                simpleTab.addEventListener('touchend', () => {
-                    clearTimeout(holdTimer);
+                // Settings button
+                document.getElementById('settingsBtn').addEventListener('click', () => {
+                    this.settingsModal.classList.add('active');
                 });
 
-                simpleTab.addEventListener('click', (e) => {
-                    if (!this.isLongPress) {
-                        // Regular click handling
-                    }
-                    this.isLongPress = false;
+                // Close settings
+                document.getElementById('closeSettings').addEventListener('click', () => {
+                    this.settingsModal.classList.remove('active');
+                    this.saveSettings();
                 });
 
-                // Mode selection in modal
+                // Mode selection
                 document.querySelectorAll('.mode-option').forEach(option => {
                     option.addEventListener('click', () => {
                         this.currentMode = option.dataset.mode;
                         this.updateKeyboardForMode();
                         this.modeModal.classList.remove('active');
                         
-                        // Update active state
                         document.querySelectorAll('.mode-option').forEach(opt => {
                             opt.classList.remove('active');
                         });
@@ -525,30 +558,50 @@
                     });
                 });
 
-                // Close modal on background click
-                this.modeModal.addEventListener('click', (e) => {
-                    if (e.target === this.modeModal) {
-                        this.modeModal.classList.remove('active');
-                    }
+                // Close modals on background click
+                [this.modeModal, this.settingsModal].forEach(modal => {
+                    modal.addEventListener('click', (e) => {
+                        if (e.target === modal) {
+                            modal.classList.remove('active');
+                            if (modal === this.settingsModal) {
+                                this.saveSettings();
+                            }
+                        }
+                    });
+                });
+
+                // Settings controls
+                document.getElementById('soundToggle').addEventListener('change', (e) => {
+                    this.soundEnabled = e.target.checked;
+                });
+
+                document.getElementById('vibrationToggle').addEventListener('change', (e) => {
+                    this.vibrationEnabled = e.target.checked;
+                });
+
+                document.getElementById('precisionSelect').addEventListener('change', (e) => {
+                    this.precision = parseInt(e.target.value);
+                });
+
+                document.getElementById('angleMode').addEventListener('change', (e) => {
+                    this.angleMode = e.target.value;
                 });
             }
 
             updateKeyboardForMode() {
-                // Remove all existing classes
                 this.mainKeyboard.className = 'calculator-keyboard';
-                
-                // Add mode-specific class
                 this.mainKeyboard.classList.add(this.currentMode);
 
-                // Update button visibility based on mode
                 const buttons = this.mainKeyboard.querySelectorAll('.calc-btn');
+                const sciButtons = this.scientificPanel.querySelectorAll('.sci-btn');
+
+                // Update main keyboard based on mode
                 buttons.forEach(btn => {
                     const action = btn.dataset.action;
                     const value = btn.dataset.value;
                     
                     switch(this.currentMode) {
                         case 'beginner':
-                            // Only show basic buttons
                             if (action && !['clear', 'backspace', 'equals', 'add', 'subtract', 'multiply', 'divide'].includes(action)) {
                                 btn.style.display = 'none';
                             } else if (!value && !action) {
@@ -559,13 +612,11 @@
                             break;
                             
                         case 'ovz':
-                            // Extra large buttons, simplified layout
                             btn.style.display = 'flex';
                             break;
                             
                         case 'middle':
-                            // Show basic + fractions + percentages
-                            if (action && ['memory-toggle', 'advanced-toggle', 'alpha', 'fraction'].includes(action)) {
+                            if (action && ['memory-toggle', 'cube', 'factorial'].includes(action)) {
                                 btn.style.display = 'none';
                             } else {
                                 btn.style.display = 'flex';
@@ -573,28 +624,37 @@
                             break;
                             
                         case 'gia':
-                            // Show all functions needed for GIA
-                            btn.style.display = 'flex';
-                            break;
-                            
                         case 'balance':
                         default:
-                            // Show balanced set
                             btn.style.display = 'flex';
                             break;
                     }
                 });
+
+                // Update scientific panel visibility
+                switch(this.currentMode) {
+                    case 'beginner':
+                        this.scientificPanel.style.display = 'none';
+                        break;
+                    case 'ovz':
+                        this.scientificPanel.style.display = 'grid';
+                        break;
+                    case 'middle':
+                    case 'gia':
+                    case 'balance':
+                    default:
+                        this.scientificPanel.style.display = 'grid';
+                        break;
+                }
             }
 
             attachEventListeners() {
-                // Mode tabs
-                document.querySelectorAll('.mode-tab').forEach(tab => {
-                    tab.addEventListener('click', () => this.switchMode(tab.dataset.mode));
-                });
-
                 // Calculator buttons
                 document.addEventListener('click', (e) => {
                     if (e.target.classList.contains('calc-btn')) {
+                        this.playSound();
+                        this.vibrate();
+                        
                         const value = e.target.dataset.value;
                         const action = e.target.dataset.action;
 
@@ -604,26 +664,40 @@
                             this.handleAction(action);
                         }
                     }
-                });
 
-                // Advanced function buttons
-                document.querySelectorAll('.adv-btn').forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        this.insertFunction(btn.dataset.func);
-                    });
+                    if (e.target.classList.contains('sci-btn')) {
+                        this.playSound();
+                        this.vibrate();
+                        this.insertFunction(e.target.dataset.func);
+                    }
                 });
             }
 
-            switchMode(mode) {
-                document.querySelectorAll('.mode-tab').forEach(tab => {
-                    tab.classList.toggle('active', tab.dataset.mode === mode);
-                });
+            playSound() {
+                if (this.soundEnabled) {
+                    // Simple click sound simulation
+                    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioContext.createOscillator();
+                    const gainNode = audioContext.createGain();
+                    
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioContext.destination);
+                    
+                    oscillator.frequency.value = 800;
+                    oscillator.type = 'sine';
+                    
+                    gainNode.gain.setValueAtTime(0.1, audioContext.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+                    
+                    oscillator.start(audioContext.currentTime);
+                    oscillator.stop(audioContext.currentTime + 0.1);
+                }
+            }
 
-                document.querySelectorAll('.mode-content').forEach(content => {
-                    content.classList.remove('active');
-                });
-
-                document.getElementById(`${mode}-mode`).classList.add('active');
+            vibrate() {
+                if (this.vibrationEnabled && 'vibrate' in navigator) {
+                    navigator.vibrate(10);
+                }
             }
 
             appendValue(value) {
@@ -667,27 +741,23 @@
                         this.expression += '/100';
                         break;
                     case 'sqrt':
-                        // Use proper root symbol and handle display
                         this.expression += '√(';
                         break;
                     case 'power':
                         this.expression += '^2';
                         break;
-                    case 'advanced-toggle':
-                        this.advancedPanel.classList.toggle('open');
+                    case 'cube':
+                        this.expression += '^3';
                         break;
-                    case 'memory-toggle':
-                        this.memoryPanel.classList.toggle('open');
+                    case '1/x':
+                        this.expression = `1/(${this.expression})`;
                         break;
-                    case 'alpha':
-                        this.alphaMode = !this.alphaMode;
+                    case 'factorial':
+                        this.expression += '!';
                         break;
                     case 'negate':
                         this.expression += '*(-1)';
                         break;
-                    case 'fraction':
-                        this.switchMode('fractions');
-                        return;
                     case 'mc':
                         this.memory[this.currentMemory] = null;
                         this.updateMemoryIndicator();
@@ -725,26 +795,21 @@
                     'tan': 'tan(',
                     'sin⁻¹': 'asin(',
                     'cos⁻¹': 'acos(',
-                    'sinh': 'sinh(',
-                    'cosh': 'cosh(',
-                    'tanh': 'tanh(',
                     'log': 'log10(',
                     'ln': 'log(',
                     '√': '√(',
-                    '³√': 'cbrt(',
                     'x²': '^2',
-                    'x³': '^3',
                     'x^y': '^',
                     'π': 'pi',
                     'e': 'e',
                     'nCr': this.insertCombinatorics.bind(this, 'comb'),
                     'nPr': this.insertCombinatorics.bind(this, 'perm'),
                     'hyp': this.insertHyp.bind(this),
-                    'Pol(': 'Pol(',
-                    'Rec(': 'Rec(',
-                    'S⇄D': this.switchDecimalFraction.bind(this),
                     '(--)': '*(-1)',
-                    'Ans': this.insertAnswer.bind(this)
+                    'Ans': this.insertAnswer.bind(this),
+                    '(': '(',
+                    ')': ')',
+                    ',': ','
                 };
 
                 if (functions[func]) {
@@ -771,42 +836,17 @@
                 }
             }
 
-            switchDecimalFraction() {
-                if (this.result.includes('/')) {
-                    const parts = this.result.split('/');
-                    const decimal = parseFloat(parts[0]) / parseFloat(parts[1]);
-                    this.result = this.formatNumber(decimal);
-                } else {
-                    const decimal = parseFloat(this.result);
-                    const fraction = this.decimalToFraction(decimal);
-                    this.result = `${fraction[0]}/${fraction[1]}`;
-                }
-                this.updateDisplay();
-            }
-
-            decimalToFraction(decimal) {
-                const tolerance = 1.0E-6;
-                let numerator = 1;
-                let denominator = 1;
-                let fraction = numerator / denominator;
-                
-                while (Math.abs(fraction - decimal) > tolerance) {
-                    if (fraction < decimal) {
-                        numerator++;
-                    } else {
-                        denominator++;
-                        numerator = Math.round(decimal * denominator);
-                    }
-                    fraction = numerator / denominator;
-                }
-                return [numerator, denominator];
-            }
-
             calculate() {
                 try {
                     let expr = this.expression;
                     
-                    // Handle root symbol display but use sqrt for calculation
+                    // Handle angle mode
+                    if (this.angleMode === 'deg') {
+                        expr = expr.replace(/sin\(/g, 'sin(pi/180*');
+                        expr = expr.replace(/cos\(/g, 'cos(pi/180*');
+                        expr = expr.replace(/tan\(/g, 'tan(pi/180*');
+                    }
+                    
                     expr = expr.replace(/√/g, 'sqrt');
                     expr = expr.replace(/,/g, '.');
                     
@@ -827,13 +867,12 @@
             formatNumber(num) {
                 if (Math.abs(num) < 1e-10) return '0';
                 if (Math.abs(num) > 1e10 || Math.abs(num) < 1e-4) {
-                    return num.toExponential(6).replace(/\./g, ',');
+                    return num.toExponential(this.precision).replace(/\./g, ',');
                 }
-                return parseFloat(num.toFixed(6)).toString().replace(/\./g, ',');
+                return parseFloat(num.toFixed(this.precision)).toString().replace(/\./g, ',');
             }
 
             updateDisplay() {
-                // Use root symbol in display but keep sqrt for calculation
                 let displayExpr = this.expression.replace(/sqrt/g, '√');
                 this.expressionDisplay.textContent = displayExpr || '';
                 this.resultDisplay.textContent = this.result;
@@ -842,6 +881,45 @@
             updateMemoryIndicator() {
                 const usedCount = this.memory.filter(cell => cell !== null).length;
                 this.memoryIndicator.textContent = usedCount > 0 ? `M[${usedCount}]` : 'M';
+            }
+
+            saveSettings() {
+                const settings = {
+                    soundEnabled: this.soundEnabled,
+                    vibrationEnabled: this.vibrationEnabled,
+                    precision: this.precision,
+                    angleMode: this.angleMode,
+                    currentMode: this.currentMode
+                };
+                localStorage.setItem('calculatorSettings', JSON.stringify(settings));
+            }
+
+            loadSettings() {
+                const saved = localStorage.getItem('calculatorSettings');
+                if (saved) {
+                    const settings = JSON.parse(saved);
+                    this.soundEnabled = settings.soundEnabled !== false;
+                    this.vibrationEnabled = settings.vibrationEnabled !== false;
+                    this.precision = settings.precision || 6;
+                    this.angleMode = settings.angleMode || 'deg';
+                    this.currentMode = settings.currentMode || 'balance';
+
+                    // Update UI
+                    document.getElementById('soundToggle').checked = this.soundEnabled;
+                    document.getElementById('vibrationToggle').checked = this.vibrationEnabled;
+                    document.getElementById('precisionSelect').value = this.precision;
+                    document.getElementById('angleMode').value = this.angleMode;
+
+                    // Update mode selection
+                    document.querySelectorAll('.mode-option').forEach(opt => {
+                        opt.classList.remove('active');
+                        if (opt.dataset.mode === this.currentMode) {
+                            opt.classList.add('active');
+                        }
+                    });
+
+                    this.updateKeyboardForMode();
+                }
             }
         }
 
