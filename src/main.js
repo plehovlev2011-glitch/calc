@@ -1,5 +1,9 @@
+import {styles as typescaleStyles} from '@material/web/typography/md-typescale-styles.js';
+
+// Импортируем все нужные компоненты
 import '@material/web/button/filled-button.js';
 import '@material/web/button/text-button.js';
+import '@material/web/button/outlined-button.js';
 import '@material/web/textfield/filled-text-field.js';
 import '@material/web/tabs/primary-tab.js';
 import '@material/web/tabs/tabs.js';
@@ -12,7 +16,11 @@ import '@material/web/dialog/dialog.js';
 import '@material/web/snackbar/snackbar.js';
 import '@material/web/card/card.js';
 import '@material/web/chip/assist-chip.js';
+import '@material/web/chip/chip-set.js';
 import '@material/web/progress/circular-progress.js';
+
+// Добавляем стили Material Typography
+document.adoptedStyleSheets.push(typescaleStyles.styleSheet);
 
 const API_URL = 'https://script.google.com/macros/s/AKfycbwIiLDTJGm3F-EG0SMPWqdXL06NXLPZ-IyuUKTQOnyGds4LCDqPE-rKz-twWmg8JO9h/exec';
 
@@ -58,26 +66,26 @@ class App {
         <div style="max-width: 400px; width: 100%;">
           <div style="text-align: center; margin-bottom: 32px;">
             <img src="/logo.webp" alt="ПЕРЕЦ" style="width: 64px; height: 64px; border-radius: 16px;">
-            <h1 style="font-family: 'Unbounded'; font-weight: 200; font-size: 24px; letter-spacing: 2px; margin-top: 16px; color: #C62828;">ПЕРЕЦ</h1>
+            <h1 class="md-typescale-display-small" style="font-family: 'Unbounded'; font-weight: 200; letter-spacing: 2px; margin-top: 16px; color: #C62828;">ПЕРЕЦ</h1>
           </div>
           
           <md-tabs id="auth-tabs">
-            <md-primary-tab id="tab-login">Войти</md-primary-tab>
-            <md-primary-tab id="tab-register">Регистрация</md-primary-tab>
+            <md-primary-tab>Войти</md-primary-tab>
+            <md-primary-tab>Регистрация</md-primary-tab>
           </md-tabs>
           
           <div id="login-panel" style="margin-top: 24px;">
-            <md-filled-text-field id="login-phone" label="Логин" type="text"></md-filled-text-field>
-            <md-filled-text-field id="login-password" label="Пароль" type="password" style="margin-top: 16px;"></md-filled-text-field>
+            <md-filled-text-field id="login-phone" label="Логин" type="text" style="width: 100%;"></md-filled-text-field>
+            <md-filled-text-field id="login-password" label="Пароль" type="password" style="width: 100%; margin-top: 16px;"></md-filled-text-field>
             <div id="login-error" style="color: #BA1A1A; font-size: 14px; margin-top: 12px; display: none;"></div>
             <md-filled-button id="login-btn" style="width: 100%; margin-top: 24px;">Войти</md-filled-button>
             <md-text-button style="width: 100%; margin-top: 8px;">Проблемы с авторизацией?</md-text-button>
           </div>
           
           <div id="register-panel" style="display: none; margin-top: 24px;">
-            <md-filled-text-field id="reg-name" label="Имя" type="text"></md-filled-text-field>
-            <md-filled-text-field id="reg-phone" label="Логин" type="text" style="margin-top: 16px;"></md-filled-text-field>
-            <md-filled-text-field id="reg-password" label="Пароль (минимум 8 символов)" type="password" style="margin-top: 16px;"></md-filled-text-field>
+            <md-filled-text-field id="reg-name" label="Имя" type="text" style="width: 100%;"></md-filled-text-field>
+            <md-filled-text-field id="reg-phone" label="Логин" type="text" style="width: 100%; margin-top: 16px;"></md-filled-text-field>
+            <md-filled-text-field id="reg-password" label="Пароль (минимум 8 символов)" type="password" style="width: 100%; margin-top: 16px;"></md-filled-text-field>
             <div id="register-error" style="color: #BA1A1A; font-size: 14px; margin-top: 12px; display: none;"></div>
             <md-filled-button id="register-btn" style="width: 100%; margin-top: 24px;">Создать аккаунт</md-filled-button>
           </div>
@@ -180,7 +188,7 @@ class App {
 
   showCabinet() {
     this.container.innerHTML = `
-      <div class="app-container" style="max-width: 1200px; margin: 0 auto;">
+      <div style="max-width: 1200px; margin: 0 auto;">
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid #D8C2BF;">
           <div style="display: flex; align-items: center; gap: 12px;">
             <img src="/logo.webp" alt="ПЕРЕЦ" style="width: 32px; height: 32px;">
@@ -192,7 +200,7 @@ class App {
         </div>
         
         <div id="tab-home" style="padding: 16px;">
-          <div class="bonus-card">
+          <div style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 70%, #533483 100%); border-radius: 28px; padding: 24px; color: white; margin-bottom: 16px;">
             <div style="font-family: 'Unbounded'; font-weight: 200; font-size: 10px; letter-spacing: 2px; opacity: 0.75; margin-bottom: 4px;">БОНУСНЫЙ СЧЁТ</div>
             <div style="display: flex; align-items: baseline; gap: 8px;">
               <span style="font-family: 'Unbounded'; font-weight: 200; font-size: 48px; line-height: 1;">${this.currentUser.bonuses}</span>
@@ -204,7 +212,7 @@ class App {
             </div>
           </div>
           
-          <div id="chips-container" class="chips-card">
+          <div id="chips-container" style="background: #F5DDDB; border-radius: 28px; padding: 20px; margin: 16px 0;">
             <div style="text-align: center;">Загрузка карты обедов...</div>
           </div>
           
@@ -215,28 +223,9 @@ class App {
               <div style="font-size: 12px; color: #857370; margin-top: 8px;">Покажите на кассе для начисления бонусов</div>
             </div>
           </div>
-          
-          <div style="margin-top: 20px;">
-            <div style="font-family: 'Unbounded'; font-weight: 200; font-size: 10px; letter-spacing: 2px; color: #857370; margin-bottom: 12px;">АКЦИИ</div>
-            <div class="promo-scroll">
-              <div class="promo-card">
-                <div class="promo-card-title">Накопительная система</div>
-                <div class="promo-card-desc">Каждый 10-й обед в подарок!</div>
-              </div>
-              <div class="promo-card">
-                <div class="promo-card-title">Банкетный бонус</div>
-                <div class="promo-card-desc">При заказе банкета — двойные бонусы</div>
-              </div>
-              <div class="promo-card">
-                <div class="promo-card-title">День рождения</div>
-                <div class="promo-card-desc">Именной подарок в твой праздник</div>
-              </div>
-            </div>
-          </div>
         </div>
         
         <div id="tab-history" style="padding: 16px; display: none;">
-          <div style="font-family: 'Unbounded'; font-weight: 200; font-size: 10px; letter-spacing: 2px; color: #857370; margin-bottom: 16px;">ИСТОРИЯ ОПЕРАЦИЙ</div>
           <div id="history-list"></div>
         </div>
         
@@ -290,6 +279,10 @@ class App {
               <div style="font-size: 12px; color: #857370;">Бонусы</div>
               <div style="font-size: 16px; font-weight: 500;">${this.currentUser.bonuses}</div>
             </div>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 16px;">
+              <span>Тёмная тема</span>
+              <md-switch id="theme-switch"></md-switch>
+            </div>
           </div>
           <div slot="actions">
             <md-text-button id="logout-btn">Выйти</md-text-button>
@@ -342,7 +335,7 @@ class App {
         </div>
         <div style="display: grid; grid-template-columns: repeat(10, 1fr); gap: 6px; margin-bottom: 10px;">
           ${Array.from({ length: 10 }, (_, i) => `
-            <div class="chip-dot ${i < chips ? 'filled' : ''}">
+            <div style="aspect-ratio: 1; border-radius: 50%; border: 1.5px solid #D8C2BF; display: flex; align-items: center; justify-content: center; ${i < chips ? 'background: #C62828; border-color: #C62828; color: white; transform: scale(1.08);' : ''}">
               ${i < chips ? '★' : ''}
             </div>
           `).join('')}
