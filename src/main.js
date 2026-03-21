@@ -1,22 +1,16 @@
 import {styles as typescaleStyles} from '@material/web/typography/md-typescale-styles.js';
 
-// Импортируем все нужные компоненты
+// Рабочие импорты
 import '@material/web/button/filled-button.js';
 import '@material/web/button/text-button.js';
 import '@material/web/button/outlined-button.js';
 import '@material/web/textfield/filled-text-field.js';
 import '@material/web/tabs/primary-tab.js';
 import '@material/web/tabs/tabs.js';
-import '@material/web/navigationbar/navigation-bar.js';
-import '@material/web/navigationbar/navigation-tab.js';
 import '@material/web/icon/icon.js';
 import '@material/web/iconbutton/icon-button.js';
 import '@material/web/switch/switch.js';
 import '@material/web/dialog/dialog.js';
-import '@material/web/snackbar/snackbar.js';
-import '@material/web/card/card.js';
-import '@material/web/chip/assist-chip.js';
-import '@material/web/chip/chip-set.js';
 import '@material/web/progress/circular-progress.js';
 
 // Добавляем стили Material Typography
@@ -69,12 +63,12 @@ class App {
             <h1 class="md-typescale-display-small" style="font-family: 'Unbounded'; font-weight: 200; letter-spacing: 2px; margin-top: 16px; color: #C62828;">ПЕРЕЦ</h1>
           </div>
           
-          <md-tabs id="auth-tabs">
-            <md-primary-tab>Войти</md-primary-tab>
-            <md-primary-tab>Регистрация</md-primary-tab>
-          </md-tabs>
+          <div style="display: flex; gap: 8px; background: #F5DDDB; border-radius: 100px; padding: 4px; margin-bottom: 24px;">
+            <button id="tab-login-btn" style="flex: 1; padding: 10px; border: none; border-radius: 100px; font-family: 'Unbounded'; font-weight: 300; font-size: 12px; cursor: pointer; background: white; color: #C62828;">Войти</button>
+            <button id="tab-register-btn" style="flex: 1; padding: 10px; border: none; border-radius: 100px; font-family: 'Unbounded'; font-weight: 300; font-size: 12px; cursor: pointer; background: transparent;">Регистрация</button>
+          </div>
           
-          <div id="login-panel" style="margin-top: 24px;">
+          <div id="login-panel">
             <md-filled-text-field id="login-phone" label="Логин" type="text" style="width: 100%;"></md-filled-text-field>
             <md-filled-text-field id="login-password" label="Пароль" type="password" style="width: 100%; margin-top: 16px;"></md-filled-text-field>
             <div id="login-error" style="color: #BA1A1A; font-size: 14px; margin-top: 12px; display: none;"></div>
@@ -82,8 +76,8 @@ class App {
             <md-text-button style="width: 100%; margin-top: 8px;">Проблемы с авторизацией?</md-text-button>
           </div>
           
-          <div id="register-panel" style="display: none; margin-top: 24px;">
-            <md-filled-text-field id="reg-name" label="Имя" type="text" style="width: 100%;"></md-filled-text-field>
+          <div id="register-panel" style="display: none;">
+            <md-filled-text-field id="reg-name" label="Имя" type="text" style="width: 100%; margin-top: 24px;"></md-filled-text-field>
             <md-filled-text-field id="reg-phone" label="Логин" type="text" style="width: 100%; margin-top: 16px;"></md-filled-text-field>
             <md-filled-text-field id="reg-password" label="Пароль (минимум 8 символов)" type="password" style="width: 100%; margin-top: 16px;"></md-filled-text-field>
             <div id="register-error" style="color: #BA1A1A; font-size: 14px; margin-top: 12px; display: none;"></div>
@@ -97,14 +91,27 @@ class App {
   }
 
   attachAuthEvents() {
-    const tabs = this.container.querySelector('#auth-tabs');
+    const loginTab = this.container.querySelector('#tab-login-btn');
+    const registerTab = this.container.querySelector('#tab-register-btn');
     const loginPanel = this.container.querySelector('#login-panel');
     const registerPanel = this.container.querySelector('#register-panel');
     
-    tabs.addEventListener('change', (e) => {
-      const activeIndex = e.detail.activeTabIndex;
-      loginPanel.style.display = activeIndex === 0 ? 'block' : 'none';
-      registerPanel.style.display = activeIndex === 0 ? 'none' : 'block';
+    loginTab.addEventListener('click', () => {
+      loginTab.style.background = 'white';
+      loginTab.style.color = '#C62828';
+      registerTab.style.background = 'transparent';
+      registerTab.style.color = '#534341';
+      loginPanel.style.display = 'block';
+      registerPanel.style.display = 'none';
+    });
+    
+    registerTab.addEventListener('click', () => {
+      registerTab.style.background = 'white';
+      registerTab.style.color = '#C62828';
+      loginTab.style.background = 'transparent';
+      loginTab.style.color = '#534341';
+      loginPanel.style.display = 'none';
+      registerPanel.style.display = 'block';
     });
 
     const loginBtn = this.container.querySelector('#login-btn');
@@ -188,7 +195,7 @@ class App {
 
   showCabinet() {
     this.container.innerHTML = `
-      <div style="max-width: 1200px; margin: 0 auto;">
+      <div style="max-width: 1200px; margin: 0 auto; padding-bottom: 80px;">
         <div style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid #D8C2BF;">
           <div style="display: flex; align-items: center; gap: 12px;">
             <img src="/logo.webp" alt="ПЕРЕЦ" style="width: 32px; height: 32px;">
@@ -223,9 +230,28 @@ class App {
               <div style="font-size: 12px; color: #857370; margin-top: 8px;">Покажите на кассе для начисления бонусов</div>
             </div>
           </div>
+          
+          <div style="margin-top: 20px;">
+            <div style="font-family: 'Unbounded'; font-weight: 200; font-size: 10px; letter-spacing: 2px; color: #857370; margin-bottom: 12px;">АКЦИИ</div>
+            <div style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px;">
+              <div style="flex: 0 0 240px; background: #FFDAD6; border-radius: 24px; padding: 16px;">
+                <div style="font-family: 'Unbounded'; font-weight: 300; font-size: 13px; color: #2C1512;">Накопительная система</div>
+                <div style="font-size: 12px; color: #2C1512; opacity: 0.75;">Каждый 10-й обед в подарок!</div>
+              </div>
+              <div style="flex: 0 0 240px; background: #FFDAD6; border-radius: 24px; padding: 16px;">
+                <div style="font-family: 'Unbounded'; font-weight: 300; font-size: 13px; color: #2C1512;">Банкетный бонус</div>
+                <div style="font-size: 12px; color: #2C1512; opacity: 0.75;">При заказе банкета — двойные бонусы</div>
+              </div>
+              <div style="flex: 0 0 240px; background: #FFDAD6; border-radius: 24px; padding: 16px;">
+                <div style="font-family: 'Unbounded'; font-weight: 300; font-size: 13px; color: #2C1512;">День рождения</div>
+                <div style="font-size: 12px; color: #2C1512; opacity: 0.75;">Именной подарок в твой праздник</div>
+              </div>
+            </div>
+          </div>
         </div>
         
         <div id="tab-history" style="padding: 16px; display: none;">
+          <div style="font-family: 'Unbounded'; font-weight: 200; font-size: 10px; letter-spacing: 2px; color: #857370; margin-bottom: 16px;">ИСТОРИЯ ОПЕРАЦИЙ</div>
           <div id="history-list"></div>
         </div>
         
@@ -257,12 +283,24 @@ class App {
           <div id="delivery-content"></div>
         </div>
         
-        <md-navigation-bar id="bottom-nav" style="position: fixed; bottom: 0; width: 100%; max-width: 1200px; left: 50%; transform: translateX(-50%);">
-          <md-navigation-tab id="nav-home" icon="home" label="Главная"></md-navigation-tab>
-          <md-navigation-tab id="nav-history" icon="history" label="История"></md-navigation-tab>
-          <md-navigation-tab id="nav-banket" icon="celebration" label="Банкет"></md-navigation-tab>
-          <md-navigation-tab id="nav-delivery" icon="delivery_dining" label="Доставка"></md-navigation-tab>
-        </md-navigation-bar>
+        <div id="bottom-nav" style="position: fixed; bottom: 0; left: 0; right: 0; background: #FFFBFA; border-top: 1px solid #D8C2BF; display: flex; padding-bottom: env(safe-area-inset-bottom, 0px);">
+          <button class="nav-item active" data-tab="home" style="flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 8px; background: none; border: none; cursor: pointer;">
+            <span class="material-icons" style="font-size: 20px;">home</span>
+            <span style="font-size: 10px; font-family: 'Unbounded'; font-weight: 200;">Главная</span>
+          </button>
+          <button class="nav-item" data-tab="history" style="flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 8px; background: none; border: none; cursor: pointer;">
+            <span class="material-icons" style="font-size: 20px;">history</span>
+            <span style="font-size: 10px; font-family: 'Unbounded'; font-weight: 200;">История</span>
+          </button>
+          <button class="nav-item" data-tab="banket" style="flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 8px; background: none; border: none; cursor: pointer;">
+            <span class="material-icons" style="font-size: 20px;">celebration</span>
+            <span style="font-size: 10px; font-family: 'Unbounded'; font-weight: 200;">Банкет</span>
+          </button>
+          <button class="nav-item" data-tab="delivery" style="flex: 1; display: flex; flex-direction: column; align-items: center; padding: 10px 8px; background: none; border: none; cursor: pointer;">
+            <span class="material-icons" style="font-size: 20px;">delivery_dining</span>
+            <span style="font-size: 10px; font-family: 'Unbounded'; font-weight: 200;">Доставка</span>
+          </button>
+        </div>
         
         <md-dialog id="settings-dialog">
           <div slot="headline">Настройки</div>
@@ -289,8 +327,6 @@ class App {
             <md-filled-button id="close-settings-btn">Закрыть</md-filled-button>
           </div>
         </md-dialog>
-        
-        <md-snackbar id="snackbar"></md-snackbar>
       </div>
     `;
     
@@ -378,36 +414,36 @@ class App {
   }
 
   attachCabinetEvents() {
-    const navHome = this.container.querySelector('#nav-home');
-    const navHistory = this.container.querySelector('#nav-history');
-    const navBanket = this.container.querySelector('#nav-banket');
-    const navDelivery = this.container.querySelector('#nav-delivery');
+    const navItems = this.container.querySelectorAll('.nav-item');
     const tabHome = this.container.querySelector('#tab-home');
     const tabHistory = this.container.querySelector('#tab-history');
     const tabBanket = this.container.querySelector('#tab-banket');
     const tabDelivery = this.container.querySelector('#tab-delivery');
     
-    const switchTab = (tab) => {
-      tabHome.style.display = 'none';
-      tabHistory.style.display = 'none';
-      tabBanket.style.display = 'none';
-      tabDelivery.style.display = 'none';
-      if (tab === 'home') tabHome.style.display = 'block';
-      if (tab === 'history') tabHistory.style.display = 'block';
-      if (tab === 'banket') tabBanket.style.display = 'block';
-      if (tab === 'delivery') tabDelivery.style.display = 'block';
-    };
-    
-    navHome.addEventListener('click', () => switchTab('home'));
-    navHistory.addEventListener('click', () => switchTab('history'));
-    navBanket.addEventListener('click', () => switchTab('banket'));
-    navDelivery.addEventListener('click', () => switchTab('delivery'));
+    navItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const tab = item.dataset.tab;
+        navItems.forEach(nav => nav.classList.remove('active'));
+        item.classList.add('active');
+        
+        tabHome.style.display = 'none';
+        tabHistory.style.display = 'none';
+        tabBanket.style.display = 'none';
+        tabDelivery.style.display = 'none';
+        
+        if (tab === 'home') tabHome.style.display = 'block';
+        if (tab === 'history') tabHistory.style.display = 'block';
+        if (tab === 'banket') tabBanket.style.display = 'block';
+        if (tab === 'delivery') tabDelivery.style.display = 'block';
+        
+        if (tab === 'delivery') this.renderDelivery();
+      });
+    });
     
     const settingsBtn = this.container.querySelector('#settings-btn');
     const settingsDialog = this.container.querySelector('#settings-dialog');
     const closeSettingsBtn = this.container.querySelector('#close-settings-btn');
     const logoutBtn = this.container.querySelector('#logout-btn');
-    const snackbar = this.container.querySelector('#snackbar');
     
     settingsBtn.addEventListener('click', () => settingsDialog.show());
     closeSettingsBtn.addEventListener('click', () => settingsDialog.close());
@@ -416,12 +452,10 @@ class App {
       settingsDialog.close();
       localStorage.removeItem('cafeUserCode');
       localStorage.removeItem('cafeUserData');
-      snackbar.labelText = 'Вы вышли из аккаунта';
-      snackbar.show();
       setTimeout(() => {
         this.currentUser = null;
         this.showAuth();
-      }, 1000);
+      }, 100);
     });
     
     const banketBtn = this.container.querySelector('#banket-order-btn');
@@ -430,6 +464,65 @@ class App {
         window.open('https://docs.google.com/forms/d/e/1FAIpQLScOlQBG0HjHlC0NetplG0BT8g2Tw474YH4s0S5XKX4lZGv3Zg/viewform', '_blank');
       });
     }
+  }
+
+  renderDelivery() {
+    const container = this.container.querySelector('#delivery-content');
+    const now = new Date();
+    const day = now.getDay();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const isWeekday = day >= 1 && day <= 5;
+    const isOpen = isWeekday && (hours > 9 || (hours === 9 && minutes >= 20)) && (hours < 13 || (hours === 13 && minutes <= 30));
+    
+    container.innerHTML = `
+      <div style="margin-top: 16px;">
+        <div style="background: ${isOpen ? '#C8E6C9' : '#FFCDD2'}; border-radius: 28px; padding: 24px; margin-bottom: 20px;">
+          <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+            <span class="material-icons" style="font-size: 24px; color: ${isOpen ? '#2E7D32' : '#C62828'};">${isOpen ? 'check_circle' : 'cancel'}</span>
+            <span style="font-family: 'Unbounded'; font-weight: 300; font-size: 18px;">Доставка ${isOpen ? 'работает' : 'закрыта'}</span>
+          </div>
+          <div style="font-size: 13px; opacity: 0.8;">${isOpen ? 'Принимаем заказы до 13:30' : 'Доставка работает Пн–Пт с 9:20 до 13:30'}</div>
+        </div>
+        
+        <div style="background: #F5DDDB; border-radius: 24px; padding: 16px 20px; margin-bottom: 20px;">
+          <div style="font-family: 'Unbounded'; font-weight: 300; font-size: 13px; margin-bottom: 12px;">Часы работы</div>
+          <div style="display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #D8C2BF;">
+            <span>Понедельник — Пятница</span>
+            <span style="font-family: 'Unbounded'; font-weight: 300; color: #C62828;">9:20 — 13:30</span>
+          </div>
+          <div style="display: flex; justify-content: space-between; padding: 6px 0;">
+            <span>Суббота — Воскресенье</span>
+            <span style="color: #857370;">Выходной</span>
+          </div>
+        </div>
+        
+        ${isOpen ? `
+          <div style="display: flex; flex-direction: column; gap: 12px;">
+            <a href="https://chibbis.ru/kirov/restaurant/perets/" target="_blank" style="display: flex; align-items: center; gap: 16px; padding: 18px 20px; background: #F5DDDB; border-radius: 24px; text-decoration: none; color: inherit;">
+              <div style="width: 48px; height: 48px; border-radius: 16px; background: #FF6B35; display: flex; align-items: center; justify-content: center;">
+                <span class="material-icons" style="color: white; font-size: 26px;">local_pizza</span>
+              </div>
+              <div style="flex: 1;">
+                <div style="font-family: 'Unbounded'; font-weight: 300; font-size: 15px;">Chibbis</div>
+                <div style="font-size: 12px; color: #857370;">chibbis.ru</div>
+              </div>
+              <span class="material-icons" style="color: #857370;">open_in_new</span>
+            </a>
+            <a href="https://eda.yandex.ru/kirov/r/stolovaja_pjerjec_kazan" target="_blank" style="display: flex; align-items: center; gap: 16px; padding: 18px 20px; background: #F5DDDB; border-radius: 24px; text-decoration: none; color: inherit;">
+              <div style="width: 48px; height: 48px; border-radius: 16px; background: #FC3F1D; display: flex; align-items: center; justify-content: center;">
+                <span class="material-icons" style="color: white; font-size: 26px;">directions_car</span>
+              </div>
+              <div style="flex: 1;">
+                <div style="font-family: 'Unbounded'; font-weight: 300; font-size: 15px;">Яндекс Еда</div>
+                <div style="font-size: 12px; color: #857370;">eda.yandex.ru</div>
+              </div>
+              <span class="material-icons" style="color: #857370;">open_in_new</span>
+            </a>
+          </div>
+        ` : ''}
+      </div>
+    `;
   }
 }
 
