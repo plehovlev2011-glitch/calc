@@ -1,0 +1,69 @@
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@200;300;400;500&family=Inter:wght@400;500&display=swap');
+
+:root {
+  --md-sys-color-primary: #C62828;
+  --md-sys-color-primary-container: #FFCDD2;
+  --md-sys-color-on-primary: #FFFFFF;
+  --md-sys-color-on-primary-container: #410002;
+  --md-sys-color-secondary: #775652;
+  --md-sys-color-secondary-container: #FFDAD6;
+  --md-sys-color-on-secondary: #2C1512;
+  --md-sys-color-surface: #FFFBFA;
+  --md-sys-color-surface-variant: #F5DDDB;
+  --md-sys-color-on-surface: #201A19;
+  --md-sys-color-on-surface-variant: #534341;
+  --md-sys-color-outline: #857370;
+  --md-sys-color-error: #BA1A1A;
+  --md-sys-color-error-container: #FFDAD6;
+  
+  --md-sys-shape-corner-extra-small: 8px;
+  --md-sys-shape-corner-small: 12px;
+  --md-sys-shape-corner-medium: 16px;
+  --md-sys-shape-corner-large: 28px;
+  --md-sys-shape-corner-extra-large: 100px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --md-sys-color-surface: #121212;
+    --md-sys-color-surface-variant: #2A2A2A;
+    --md-sys-color-on-surface: #E8E0DF;
+    --md-sys-color-on-surface-variant: #B0A8A7;
+    --md-sys-color-outline: #9E9693;
+    --md-sys-color-primary-container: #5C1818;
+  }
+}
+
+body.dark {
+  --md-sys-color-surface: #121212;
+  --md-sys-color-surface-variant: #2A2A2A;
+  --md-sys-color-on-surface: #E8E0DF;
+  --md-sys-color-on-surface-variant: #B0A8A7;
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  background: var(--md-sys-color-surface);
+  color: var(--md-sys-color-on-surface);
+}
+
+.bonus-card-expressive {
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 70%, #533483 100%);
+  border-radius: var(--md-sys-shape-corner-large);
+  padding: 24px;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+
+.bonus-card-expressive::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  right: -60px;
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  pointer-events: none;
+}
