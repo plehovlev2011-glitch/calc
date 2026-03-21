@@ -1,20 +1,14 @@
-import '@material/web/button/filled-button.js';
-import '@material/web/button/text-button.js';
-import '@material/web/textfield/filled-text-field.js';
-import '@material/web/tabs/primary-tab.js';
-import '@material/web/tabs/tabs.js';
-import '@material/web/progress/circular-progress.js';
-
 export class AuthScreen {
-  constructor({ onLogin }) {
+  constructor({ onLogin, onRegister }) {
     this.onLogin = onLogin;
+    this.onRegister = onRegister;
     this.container = null;
-    this.currentTab = 'login';
   }
 
   mount(container) {
     this.container = container;
     this.render();
+    this.attachEvents();
   }
 
   unmount() {
@@ -30,104 +24,104 @@ export class AuthScreen {
             <h1 style="font-family: 'Unbounded'; font-weight: 200; font-size: 24px; letter-spacing: 2px; margin-top: 16px;">ПЕРЕЦ</h1>
           </div>
           
-          <md-tabs id="auth-tabs">
-            <md-primary-tab id="tab-login">Войти</md-primary-tab>
-            <md-primary-tab id="tab-register">Регистрация</md-primary-tab>
-          </md-tabs>
-          
-          <div id="login-panel" class="auth-panel">
-            <md-filled-text-field id="login-phone" label="Логин" type="text" style="width: 100%; margin-top: 24px;"></md-filled-text-field>
-            <md-filled-text-field id="login-password" label="Пароль" type="password" style="width: 100%; margin-top: 16px;"></md-filled-text-field>
-            <div id="login-error" style="color: var(--md-sys-color-error); font-size: 14px; margin-top: 12px; display: none;"></div>
-            <md-filled-button id="login-btn" style="width: 100%; margin-top: 24px;">Войти</md-filled-button>
-            <md-text-button style="width: 100%; margin-top: 8px;">Проблемы с авторизацией?</md-text-button>
+          <div class="seg-tabs" style="display: flex; gap: 8px; background: #F5DDDB; border-radius: 100px; padding: 4px; margin-bottom: 24px;">
+            <button id="tab-login-btn" class="seg-tab active" style="flex: 1; padding: 10px; border: none; border-radius: 100px; font-family: 'Unbounded'; font-weight: 300; font-size: 12px; cursor: pointer;">Войти</button>
+            <button id="tab-register-btn" class="seg-tab" style="flex: 1; padding: 10px; border: none; border-radius: 100px; font-family: 'Unbounded'; font-weight: 300; font-size: 12px; cursor: pointer;">Регистрация</button>
           </div>
           
-          <div id="register-panel" class="auth-panel" style="display: none;">
-            <md-filled-text-field id="reg-name" label="Имя" type="text" style="width: 100%; margin-top: 24px;"></md-filled-text-field>
-            <md-filled-text-field id="reg-phone" label="Логин" type="text" style="width: 100%; margin-top: 16px;"></md-filled-text-field>
-            <md-filled-text-field id="reg-password" label="Пароль (минимум 8 символов)" type="password" style="width: 100%; margin-top: 16px;"></md-filled-text-field>
-            <div id="register-error" style="color: var(--md-sys-color-error); font-size: 14px; margin-top: 12px; display: none;"></div>
-            <md-filled-button id="register-btn" style="width: 100%; margin-top: 24px;">Создать аккаунт</md-filled-button>
+          <div id="login-panel">
+            <div class="field" style="margin-bottom: 16px;">
+              <input type="text" id="login-phone" placeholder=" " style="width: 100%; padding: 18px 16px 6px; border: 1px solid #D8C2BF; border-radius: 12px; font-size: 16px;">
+              <label style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 15px; color: #857370; pointer-events: none;">Логин</label>
+            </div>
+            <div class="field" style="margin-bottom: 16px;">
+              <input type="password" id="login-password" placeholder=" " style="width: 100%; padding: 18px 16px 6px; border: 1px solid #D8C2BF; border-radius: 12px; font-size: 16px;">
+              <label style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 15px; color: #857370; pointer-events: none;">Пароль</label>
+            </div>
+            <div id="login-error" style="color: #BA1A1A; font-size: 14px; margin-top: 8px; display: none;"></div>
+            <button id="login-btn" style="width: 100%; padding: 15px; background: #C62828; color: white; border: none; border-radius: 100px; font-family: 'Unbounded'; font-weight: 300; font-size: 13px; cursor: pointer; margin-top: 8px;">Войти</button>
+          </div>
+          
+          <div id="register-panel" style="display: none;">
+            <div class="field" style="margin-bottom: 16px;">
+              <input type="text" id="reg-name" placeholder=" " style="width: 100%; padding: 18px 16px 6px; border: 1px solid #D8C2BF; border-radius: 12px; font-size: 16px;">
+              <label style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 15px; color: #857370; pointer-events: none;">Имя</label>
+            </div>
+            <div class="field" style="margin-bottom: 16px;">
+              <input type="text" id="reg-phone" placeholder=" " style="width: 100%; padding: 18px 16px 6px; border: 1px solid #D8C2BF; border-radius: 12px; font-size: 16px;">
+              <label style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 15px; color: #857370; pointer-events: none;">Логин</label>
+            </div>
+            <div class="field" style="margin-bottom: 16px;">
+              <input type="password" id="reg-password" placeholder=" " style="width: 100%; padding: 18px 16px 6px; border: 1px solid #D8C2BF; border-radius: 12px; font-size: 16px;">
+              <label style="position: absolute; left: 16px; top: 50%; transform: translateY(-50%); font-size: 15px; color: #857370; pointer-events: none;">Пароль (мин. 8 символов)</label>
+            </div>
+            <div id="register-error" style="color: #BA1A1A; font-size: 14px; margin-top: 8px; display: none;"></div>
+            <button id="register-btn" style="width: 100%; padding: 15px; background: #C62828; color: white; border: none; border-radius: 100px; font-family: 'Unbounded'; font-weight: 300; font-size: 13px; cursor: pointer; margin-top: 8px;">Создать аккаунт</button>
           </div>
         </div>
       </div>
     `;
-
-    this.attachEvents();
   }
 
   attachEvents() {
-    const tabs = this.container.querySelector('#auth-tabs');
+    const loginTab = this.container.querySelector('#tab-login-btn');
+    const registerTab = this.container.querySelector('#tab-register-btn');
     const loginPanel = this.container.querySelector('#login-panel');
     const registerPanel = this.container.querySelector('#register-panel');
-    
-    tabs.addEventListener('change', (e) => {
-      const activeIndex = e.detail.activeTabIndex;
-      this.currentTab = activeIndex === 0 ? 'login' : 'register';
-      loginPanel.style.display = activeIndex === 0 ? 'block' : 'none';
-      registerPanel.style.display = activeIndex === 0 ? 'none' : 'block';
+    const loginBtn = this.container.querySelector('#login-btn');
+    const registerBtn = this.container.querySelector('#register-btn');
+    const loginError = this.container.querySelector('#login-error');
+    const registerError = this.container.querySelector('#register-error');
+
+    loginTab.addEventListener('click', () => {
+      loginTab.classList.add('active');
+      registerTab.classList.remove('active');
+      loginPanel.style.display = 'block';
+      registerPanel.style.display = 'none';
     });
 
-    const loginBtn = this.container.querySelector('#login-btn');
-    loginBtn.addEventListener('click', () => this.handleLogin());
+    registerTab.addEventListener('click', () => {
+      registerTab.classList.add('active');
+      loginTab.classList.remove('active');
+      loginPanel.style.display = 'none';
+      registerPanel.style.display = 'block';
+    });
 
-    const registerBtn = this.container.querySelector('#register-btn');
-    registerBtn.addEventListener('click', () => this.handleRegister());
-  }
-
-  async handleLogin() {
-    const phone = this.container.querySelector('#login-phone').value;
-    const password = this.container.querySelector('#login-password').value;
-    const errorEl = this.container.querySelector('#login-error');
-    
-    errorEl.style.display = 'none';
-    
-    if (!phone || !password) {
-      errorEl.textContent = 'Заполните все поля';
-      errorEl.style.display = 'block';
-      return;
-    }
-    
-    try {
-      const result = await api.login(phone, password);
-      if (result.ok && result.user) {
-        this.onLogin(result.user);
-      } else {
-        errorEl.textContent = result.error || 'Ошибка входа';
-        errorEl.style.display = 'block';
+    loginBtn.addEventListener('click', async () => {
+      const phone = this.container.querySelector('#login-phone').value;
+      const password = this.container.querySelector('#login-password').value;
+      loginError.style.display = 'none';
+      
+      if (!phone || !password) {
+        loginError.textContent = 'Заполните все поля';
+        loginError.style.display = 'block';
+        return;
       }
-    } catch (e) {
-      errorEl.textContent = 'Ошибка соединения';
-      errorEl.style.display = 'block';
-    }
-  }
-
-  async handleRegister() {
-    const name = this.container.querySelector('#reg-name').value;
-    const phone = this.container.querySelector('#reg-phone').value;
-    const password = this.container.querySelector('#reg-password').value;
-    const errorEl = this.container.querySelector('#register-error');
-    
-    errorEl.style.display = 'none';
-    
-    if (!name || !phone || password.length < 8) {
-      errorEl.textContent = 'Заполните все поля (пароль минимум 8 символов)';
-      errorEl.style.display = 'block';
-      return;
-    }
-    
-    try {
-      const result = await api.register(name, phone, password);
-      if (result.ok) {
-        this.onLogin({ code: result.code, name, bonuses: 0 });
-      } else {
-        errorEl.textContent = result.error || 'Ошибка регистрации';
-        errorEl.style.display = 'block';
+      
+      const result = await this.onLogin(phone, password);
+      if (!result.ok) {
+        loginError.textContent = result.error || 'Ошибка входа';
+        loginError.style.display = 'block';
       }
-    } catch (e) {
-      errorEl.textContent = 'Ошибка соединения';
-      errorEl.style.display = 'block';
-    }
+    });
+
+    registerBtn.addEventListener('click', async () => {
+      const name = this.container.querySelector('#reg-name').value;
+      const phone = this.container.querySelector('#reg-phone').value;
+      const password = this.container.querySelector('#reg-password').value;
+      registerError.style.display = 'none';
+      
+      if (!name || !phone || password.length < 8) {
+        registerError.textContent = 'Заполните все поля (пароль минимум 8 символов)';
+        registerError.style.display = 'block';
+        return;
+      }
+      
+      const result = await this.onRegister(name, phone, password);
+      if (!result.ok) {
+        registerError.textContent = result.error || 'Ошибка регистрации';
+        registerError.style.display = 'block';
+      }
+    });
   }
 }
