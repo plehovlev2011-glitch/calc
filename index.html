@@ -1,44 +1,91 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>ПЕРЕЦ — Бонусная система</title>
-  
-  <!-- Material Icons -->
-  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,1" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200;300;400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
-  
-  <!-- Твой CSS -->
-  <link rel="stylesheet" href="/src/styles/theme.css">
-  
-  <script type="importmap">
-    {
-      "imports": {
-        "@material/web/": "https://esm.run/@material/web/"
+import { AuthScreen } from './AuthScreen.js';
+import { CabinetScreen } from './CabinetScreen.js';
+
+const API_URL = 'https://script.google.com/macros/s/AKfycbwIiLDTJGm3F-EG0SMPWqdXL06NXLPZ-IyuUKTQOnyGds4LCDqPE-rKz-twWmg8JO9h/exec';
+
+export class App {
+  constructor() {
+    this.currentUser = null;
+    this.container = null;
+  }
+
+  async mount(container) {
+    this.container = container;
+    await this.init();
+  }
+
+  async init() {
+    const savedCode = localStorage.getItem('cafeUserCode');
+    
+    if (savedCode) {
+      try {
+        const user = await this.getUser(savedCode);
+        if (user) {
+          this.currentUser = user;
+          this.showCabinet();
+          return;
+        }
+      } catch (e) {
+        const cached = localStorage.getItem('cafeUserData');
+        if (cached) {
+          this.currentUser = JSON.parse(cached);
+          this.showCabinet();
+          return;
+        }
       }
     }
-  </script>
-  
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      font-family: 'Inter', sans-serif;
-      background: var(--md-sys-color-surface, #FFFBFA);
-      color: var(--md-sys-color-on-surface, #201A19);
-      min-height: 100dvh;
-    }
-  </style>
-</head>
-<body>
-  <div id="app"></div>
-  <script type="module" src="/src/main.js"></script>
-</body>
-</html>
+    
+    this.showAuth();
+  }
+
+  async getUser(code) {
+    const response = await fetch(`${API_URL}?action=getUser&code=${code}`);
+    const data = await response.json();
+    return data.ok ? data.user : null;
+  }
+
+  showAuth() {
+    if (this.cabinetScreen) this.cabinetScreen.unmount();
+    this.authScreen = new AuthScreen({
+      onLogin: async (phone, password) => {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'login', phone, password })
+        });
+        const data = await response.json();
+        if (data.ok && data.user) {
+          this.currentUser = data.user;
+          this.showCabinet();
+        }
+        return data;
+      },
+      onRegister: async (name, phone, password) => {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'register', name, phone, password })
+        });
+        const data = await response.json();
+        if (data.ok) {
+          this.currentUser = { code: data.code, name, bonuses: 0, chips: 0 };
+          this.showCabinet();
+        }
+        return data;
+      }
+    });
+    this.authScreen.mount(this.container);
+  }
+
+  showCabinet() {
+    if (this.authScreen) this.authScreen.unmount();
+    this.cabinetScreen = new CabinetScreen({
+      user: this.currentUser,
+      onLogout: () => {
+        localStorage.removeItem('cafeUserCode');
+        localStorage.removeItem('cafeUserData');
+        this.currentUser = null;
+        this.showAuth();
+      }
+    });
+    this.cabinetScreen.mount(this.container);
+  }
+}
