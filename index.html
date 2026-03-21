@@ -5,173 +5,35 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>ПЕРЕЦ — Бонусная система</title>
   
-  <!-- Material Icons (две версии для совместимости) -->
   <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0,1" rel="stylesheet">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-  
-  <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@200;300;400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
   
-  <!-- Import Map для Material Web Components -->
-  <script type="importmap">
-    {
-      "imports": {
-        "@material/web/": "https://esm.run/@material/web/"
-      }
-    }
-  </script>
+  <!-- Убираем importmap из HTML, оставляем только в JS -->
   
-  <!-- Тема Material 3 -->
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
     }
-    
     body {
       font-family: 'Inter', sans-serif;
       background: #FFFBFA;
       color: #201A19;
       min-height: 100dvh;
     }
-    
-    /* Кастомные стили для MD3 компонентов */
-    md-filled-button {
-      --md-filled-button-container-color: #C62828;
-      --md-filled-button-label-text-color: white;
-      --md-filled-button-container-shape: 100px;
+    .nav-item.active {
+      color: #C62828;
     }
-    
-    md-text-button {
-      --md-text-button-label-text-color: #C62828;
+    .nav-item.active .material-icons {
+      color: #C62828;
     }
-    
-    md-filled-text-field {
-      --md-filled-text-field-container-color: #F5DDDB;
-      --md-filled-text-field-focus-active-indicator-color: #C62828;
-      --md-filled-text-field-focus-label-text-color: #C62828;
-      width: 100%;
+    .nav-item {
+      transition: color 0.2s;
     }
-    
-    md-tabs {
-      --md-secondary-tab-container-color: #F5DDDB;
-      --md-secondary-tab-active-indicator-color: #C62828;
-      --md-secondary-tab-active-label-text-color: #C62828;
-      background: #F5DDDB;
-      border-radius: 100px;
-      padding: 4px;
-    }
-    
-    md-primary-tab {
-      --md-primary-tab-container-color: transparent;
-      --md-primary-tab-active-container-color: white;
-      --md-primary-tab-label-text-color: #534341;
-      --md-primary-tab-active-label-text-color: #C62828;
-      border-radius: 100px;
-    }
-    
-    md-navigation-bar {
-      --md-navigation-bar-container-color: #FFFBFA;
-      --md-navigation-bar-active-indicator-color: #C62828;
-      --md-navigation-bar-active-label-text-color: #C62828;
-      --md-navigation-bar-active-icon-color: #C62828;
-      border-top: 1px solid #D8C2BF;
-    }
-    
-    md-card {
-      --md-card-container-shape: 28px;
-      border-radius: 28px;
-    }
-    
-    md-snackbar {
-      --md-snackbar-container-color: #201A19;
-      --md-snackbar-supporting-text-color: white;
-      --md-snackbar-container-shape: 100px;
-    }
-    
-    md-dialog {
-      --md-dialog-container-shape: 28px;
-    }
-    
-    .bonus-card {
-      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 40%, #0f3460 70%, #533483 100%);
-      border-radius: 28px;
-      padding: 24px;
-      color: white;
-      position: relative;
-      overflow: hidden;
-    }
-    
-    .bonus-card::before {
-      content: '';
-      position: absolute;
-      top: -80px;
-      right: -60px;
-      width: 200px;
-      height: 200px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-      pointer-events: none;
-    }
-    
-    .chips-card {
-      background: #F5DDDB;
-      border-radius: 28px;
-      padding: 20px;
-      margin: 16px 0;
-    }
-    
-    .chip-dot {
-      aspect-ratio: 1;
-      border-radius: 50%;
-      border: 1.5px solid #D8C2BF;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-    
-    .chip-dot.filled {
-      background: #C62828;
-      border-color: #C62828;
-      color: white;
-      transform: scale(1.08);
-    }
-    
-    .promo-scroll {
-      display: flex;
-      gap: 12px;
-      overflow-x: auto;
-      padding-bottom: 8px;
-      scrollbar-width: thin;
-    }
-    
-    .promo-card {
-      flex: 0 0 240px;
-      background: #FFDAD6;
-      border-radius: 24px;
-      padding: 16px;
-    }
-    
-    .promo-card-title {
-      font-family: 'Unbounded';
-      font-weight: 300;
-      font-size: 13px;
-      color: #2C1512;
-      margin-bottom: 6px;
-    }
-    
-    .promo-card-desc {
-      font-size: 12px;
-      color: #2C1512;
-      opacity: 0.75;
-    }
-    
-    @media (max-width: 768px) {
-      .app-container {
-        padding-bottom: 80px;
-      }
+    .nav-item .material-icons {
+      transition: color 0.2s;
     }
   </style>
 </head>
