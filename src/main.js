@@ -1,4 +1,10 @@
-import { App } from './components/App.js';
+// src/main.js
+console.log('main.js загрузился!');
 
-const app = new App();
-app.mount(document.getElementById('app'));
+const appDiv = document.getElementById('app');
+appDiv.innerHTML = `
+  <div style="text-align: center; padding: 40px;">
+    <h1 style="color: #C62828;">ПЕРЕЦ</h1>
+    <p>Бонусная система загружается...</p>
+  </div>
+`;
