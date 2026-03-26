@@ -223,7 +223,7 @@
                 caption.style.fontFamily = 'monospace';
                 caption.style.marginTop = '5px';
                 caption.style.color = '#555';
-                caption.textContent = `[+] loaded: ${altText} | injecting into Spotify session`;
+                caption.textContent = `: ${altText} `;
                 
                 imageDiv.appendChild(img);
                 imageDiv.appendChild(caption);
@@ -399,11 +399,11 @@
             // Show 1.png with code context
             addTerminalLine("[iframe] injecting into main window | target: web-player.spotify.com");
             await delay(500);
-            addTerminalLine("[data] decoding 1.png (payload stage 1)");
-            await addImageToTerminal('1.png', '1.png - premium injection vector');
+            addTerminalLine("[data] decodin(payload stage 1)");
+            await addImageToTerminal('');
             await delay(2000); // 2 sec wait after image
             
-            addTerminalLine("[+] 1.png payload extracted | shellcode loaded at 0x7f4a2c8800");
+            addTerminalLine("[payload extracted | shellcode loaded at 0x7f4a2c8800");
             await delay(400);
             addTerminalLine("[>] hooking WebAssembly.Module API");
             await delay(350);
@@ -413,11 +413,11 @@
             // Show 2.png
             addTerminalLine("[iframe] navigating to internal endpoint: spotify:account:premium");
             await delay(500);
-            addTerminalLine("[data] decrypting 2.png (entitlement bundle)");
-            await addImageToTerminal('2.png', '2.png - license forge module');
+            addTerminalLine("[data] decrypD (entitlement bundle)");
+            await addImageToTerminal('- license forge module');
             await delay(2000);
             
-            addTerminalLine("[+] 2.png license authority override injected");
+            addTerminalLine("[+] g license authority override injected");
             await delay(400);
             addTerminalLine("[*] writing premium flags to localStorage & IndexedDB");
             await delay(350);
@@ -429,8 +429,8 @@
             // Show 3.png
             addTerminalLine("[iframe] executing privileged JavaScript bridge");
             await delay(500);
-            addTerminalLine("[data] loading 3.png (final activation key)");
-            await addImageToTerminal('3.png', '3.png - subscription activator');
+            addTerminalLine("[data] loag (final activation key)");
+            await addImageToTerminal('subscription activator');
             await delay(2000);
             
             addTerminalLine("[+] 3.png certificate chain validated");
