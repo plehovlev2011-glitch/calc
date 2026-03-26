@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Pr Subscribe Patcher - AccCreator v0.178.30(U)1TIME</title>
+    <title>Spotify Pr Subscribe Patcher - AccCreator v0.178.30</title>
     <style>
-        /* minimal structural styles only, default fonts */
+        /* minimal structural styles only */
         .settings-panel.hidden {
             display: none;
         }
@@ -15,7 +15,7 @@
             background: #f5f5f5;
             border: 1px solid #aaa;
             padding: 10px;
-            height: 320px;
+            height: 400px;
             overflow-y: auto;
             margin-top: 15px;
         }
@@ -23,18 +23,16 @@
             margin: 2px 0;
             font-family: monospace;
         }
-        .image-console-line {
+        .image-frame {
             margin: 8px 0;
-            padding: 5px;
-            background: #fff;
-            border-left: 3px solid #666;
-            text-align: center;
+            width: 100%;
+            background: #000;
+            display: block;
         }
-        .image-console-line img {
-            max-width: 100%;
-            max-height: 180px;
-            border: 1px solid #ccc;
-            background: #fff;
+        .image-frame img {
+            width: 100%;
+            display: block;
+            border: none;
         }
         fieldset {
             margin: 10px 0;
@@ -87,11 +85,6 @@
             margin-top: 20px;
             text-align: center;
         }
-        .image-load-error {
-            color: #cc0000;
-            font-size: 12px;
-            font-family: monospace;
-        }
     </style>
 </head>
 <body>
@@ -106,8 +99,8 @@
     </div>
 
     <fieldset>
-        <legend>Parsing Engine · Advanced Crack Pipeline</legend>
-        <div><input type="checkbox" id="parsingMode" checked> <label for="parsingMode">Deep Packet Parsing (DPP v3.2)</label></div>
+        <legend>Parsing Engine-Q Advanced Crack Pipeline</legend>
+        <div><input type="checkbox" id="parsingMode" checked> <label for="parsingMode">Deep P-acket Parsing (DPP v3.2)</label></div>
         <div><input type="checkbox" id="heapInjection" checked> <label for="heapInjection">Heap spray + JIT manipulation (Spotify Core)</label></div>
         <div><input type="checkbox" id="tokenSpoof" checked> <label for="tokenSpoof">Token spoofing / refresh-jack (Premium mimic)</label></div>
         <div><input type="checkbox" id="licenseBypass"> <label for="licenseBypass">LicenseGate Bypass (offline entitlement)</label></div>
@@ -165,13 +158,11 @@
     <div class="status-bar" id="parseStatus">● Ready. Configure settings and press PARSE.</div>
 </div>
 
-<!-- terminal console area -->
 <div class="console-terminal" id="liveConsole">
     <div class="console-line">[system] Spotify Pr Subscribe Patcher v0.178.30 loaded</div>
     <div class="console-line">[system] waiting for PARSE command...</div>
 </div>
 
-<!-- bottom area: will contain big CREATE button and credentials after creation -->
 <div id="bottomArea" class="bottom-area"></div>
 
 <script>
@@ -200,65 +191,60 @@
             lineDiv.textContent = text;
             consoleDiv.appendChild(lineDiv);
             consoleDiv.scrollTop = consoleDiv.scrollHeight;
-            while (consoleDiv.children.length > 200) {
+            while (consoleDiv.children.length > 250) {
                 consoleDiv.removeChild(consoleDiv.firstChild);
             }
         }
 
-        function addImageToTerminal(imageUrl, altText) {
+        function addImageAsIframe(imageUrl) {
             return new Promise((resolve) => {
-                const imageDiv = document.createElement('div');
-                imageDiv.className = 'image-console-line';
+                const frameDiv = document.createElement('div');
+                frameDiv.className = 'image-frame';
                 
                 const img = document.createElement('img');
                 img.src = imageUrl;
-                img.alt = altText;
-                img.style.maxWidth = '100%';
-                img.style.maxHeight = '180px';
-                img.style.border = '1px solid #888';
-                img.style.background = '#fff';
+                img.style.width = '100%';
+                img.style.display = 'block';
+                img.style.backgroundColor = '#000';
                 
-                const caption = document.createElement('div');
-                caption.style.fontSize = '11px';
-                caption.style.fontFamily = 'monospace';
-                caption.style.marginTop = '5px';
-                caption.style.color = '#555';
-                caption.textContent = `: ${altText} `;
+                frameDiv.appendChild(img);
                 
-                imageDiv.appendChild(img);
-                imageDiv.appendChild(caption);
-                
-                // handle image load error
                 img.onload = () => {
-                    consoleDiv.appendChild(imageDiv);
+                    consoleDiv.appendChild(frameDiv);
                     consoleDiv.scrollTop = consoleDiv.scrollHeight;
                     resolve(true);
                 };
                 
                 img.onerror = () => {
-                    caption.textContent = `[!] WARNING: ${altText} not found in project root (${imageUrl}) - simulating embedded payload`;
-                    caption.style.color = '#cc6600';
-                    const fallbackText = document.createElement('div');
-                    fallbackText.style.fontFamily = 'monospace';
-                    fallbackText.style.fontSize = '11px';
-                    fallbackText.style.color = '#666';
-                    fallbackText.textContent = `[embedded ascii representation of ${altText}]`;
-                    imageDiv.appendChild(fallbackText);
-                    consoleDiv.appendChild(imageDiv);
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'image-frame';
+                    errorDiv.style.backgroundColor = '#111';
+                    errorDiv.style.color = '#0a0';
+                    errorDiv.style.fontFamily = 'monospace';
+                    errorDiv.style.padding = '40px';
+                    errorDiv.style.textAlign = 'center';
+                    errorDiv.style.fontSize = '14px';
+                    errorDiv.innerHTML = '[ interactive shell session established ]<br>[ loading remote payload... ]';
+                    consoleDiv.appendChild(errorDiv);
                     consoleDiv.scrollTop = consoleDiv.scrollHeight;
                     resolve(false);
                 };
                 
-                // timeout fallback
                 setTimeout(() => {
                     if (!img.complete) {
-                        caption.textContent = `[!] timeout: ${altText} - using embedded data`;
-                        caption.style.color = '#cc6600';
-                        consoleDiv.appendChild(imageDiv);
+                        const timeoutDiv = document.createElement('div');
+                        timeoutDiv.className = 'image-frame';
+                        timeoutDiv.style.backgroundColor = '#111';
+                        timeoutDiv.style.color = '#0a0';
+                        timeoutDiv.style.fontFamily = 'monospace';
+                        timeoutDiv.style.padding = '40px';
+                        timeoutDiv.style.textAlign = 'center';
+                        timeoutDiv.innerHTML = '[ iframe: spotify://injection ]<br>[ waiting for response... ]';
+                        consoleDiv.appendChild(timeoutDiv);
                         consoleDiv.scrollTop = consoleDiv.scrollHeight;
                         resolve(false);
                     }
-                }, 2000);
+                }, 1500);
             });
         }
 
@@ -381,77 +367,62 @@
             
             addTerminalLine("=========================================");
             addTerminalLine("[>] CREATE triggered: executing premium account generation...");
-            addTerminalLine("[>] spawning iframe injection into Spotify runtime...");
-            
-            // Phase 1: Initial code
-            await delay(300);
-            addTerminalLine("[*] initializing heap spray vectors");
-            await delay(200);
-            addTerminalLine("[~] bypassing Spotify CSP (content security policy)");
+            addTerminalLine("[>] spawning sandbox environment | Spotify runtime injection");
+            await delay(400);
+            addTerminalLine("[*] heap allocation: 0x7f4a2c8000");
             await delay(250);
-            addTerminalLine("[+] establishing RCE bridge to spotify.exe/spotifyd");
+            addTerminalLine("[~] bypassing CSP | hooking WebAssembly");
             await delay(300);
-            addTerminalLine("[data] loading premium payload templates");
-            await delay(400);
-            addTerminalLine("[>] opening virtual iframe session: spotify://inject");
+            addTerminalLine("[+] establishing bridge to spotify:web-player");
             await delay(350);
-            
-            // Show 1.png with code context
-            addTerminalLine("[iframe] injecting into main window | target: web-player.spotify.com");
-            await delay(500);
-            addTerminalLine("[data] decodin(payload stage 1)");
-            await addImageToTerminal('');
-            await delay(2000); // 2 sec wait after image
-            
-            addTerminalLine("[payload extracted | shellcode loaded at 0x7f4a2c8800");
+            addTerminalLine("[iframe] opening remote session");
             await delay(400);
-            addTerminalLine("[>] hooking WebAssembly.Module API");
-            await delay(350);
-            addTerminalLine("[~] patching DRM wrapper (widevine CDM bypass)");
-            await delay(450);
             
-            // Show 2.png
-            addTerminalLine("[iframe] navigating to internal endpoint: spotify:account:premium");
-            await delay(500);
-            addTerminalLine("[data] decrypD (entitlement bundle)");
-            await addImageToTerminal('- license forge module');
+            addTerminalLine("[>] loading stage 1 payload");
+            await delay(300);
+            await addImageAsIframe('1.png');
             await delay(2000);
             
-            addTerminalLine("[+] g license authority override injected");
-            await delay(400);
-            addTerminalLine("[*] writing premium flags to localStorage & IndexedDB");
+            addTerminalLine("[+] memory injection complete | offset 0x7f4a2c9000");
             await delay(350);
-            addTerminalLine("[>] spoofing server response: /v1/me -> premium: true");
-            await delay(450);
-            addTerminalLine("[~] creating new account record in Spotify local DB");
+            addTerminalLine("[>] patching license verification routine");
+            await delay(300);
+            addTerminalLine("[~] spoofing server-side entitlement");
             await delay(400);
+            addTerminalLine("[*] writing premium flags to localStorage");
+            await delay(350);
             
-            // Show 3.png
-            addTerminalLine("[iframe] executing privileged JavaScript bridge");
-            await delay(500);
-            addTerminalLine("[data] loag (final activation key)");
-            await addImageToTerminal('subscription activator');
+            addTerminalLine("[>] loading stage 2 payload");
+            await delay(300);
+            await addImageAsIframe('2.png');
             await delay(2000);
             
-            addTerminalLine("[+] 3.png certificate chain validated");
+            addTerminalLine("[+] certificate chain injection | validity: permanent");
+            await delay(400);
+            addTerminalLine("[>] hooking GraphQL endpoints");
             await delay(350);
-            addTerminalLine("[>] finalizing account registration with Spotify API");
+            addTerminalLine("[~] overriding account tier check");
             await delay(400);
-            addTerminalLine("[✓] Premium subscription activated");
-            await delay(300);
-            addTerminalLine("[>] generating account credentials...");
-            await delay(500);
+            addTerminalLine("[*] decrypting entitlement database");
+            await delay(450);
             
-            // Final code lines
-            addTerminalLine("[*] writing to secure storage: /data/spotify_premium.dat");
+            addTerminalLine("[>] loading final activation module");
             await delay(300);
-            addTerminalLine("[✓] account persistence established");
-            await delay(250);
-            addTerminalLine("[system] Spotify Premium successfully activated");
+            await addImageAsIframe('3.png');
+            await delay(2000);
+            
+            addTerminalLine("[+] subscription override applied");
+            await delay(350);
+            addTerminalLine("[>] generating account credentials");
             await delay(400);
+            addTerminalLine("[*] writing to secure keystore");
+            await delay(350);
+            addTerminalLine("[✓] Spotify Premium successfully activated");
+            await delay(300);
+            addTerminalLine("[✓] offline mode enabled | HiFi unlocked");
+            await delay(250);
             addTerminalLine("=========================================");
             
-            // Show credentials
             showCredentials();
             
             if (bigCreateButton) {
@@ -482,10 +453,9 @@
             
             credentialsDisplay.innerHTML = `
                 <div>✅ SPOTIFY PREMIUM ACCOUNT CREATED</div>
-                <div style="margin-top: 10px;">📧 LOGIN: kqsjio1an54@yahoo.com</div>
-                <div style="margin-top: 5px;">🔑 PASSWORD: 9100bnE1!!k4901K</div>
-                <div style="margin-top: 8px; font-size: 14px; font-weight: normal;">[ credentials stored in secure vault ]</div>
-                <div style="margin-top: 5px; font-size: 12px;">[ subscription: Premium Family | expires: never ]</div>
+                <div style="margin-top: 10px;">LOGIN: kqsjio1an54@yahoo.com</div>
+                <div style="margin-top: 5px;">PASSWORD: 9100bnE1!!k4901K</div>
+                <div style="margin-top: 8px; font-size: 14px; font-weight: normal;">[ subscription: Premium Family | unlimited devices ]</div>
             `;
             
             bottomArea.appendChild(credentialsDisplay);
@@ -516,7 +486,7 @@
         
         addTerminalLine("[system] Interface ready. Configure advanced patcher settings.");
         addTerminalLine("[system] PARSE will run 15s realtime analysis, then settings vanish and CREATE button appears.");
-        addTerminalLine("[system] During CREATE, images (1.png, 2.png, 3.png) will load from project root with 2 sec delays.");
+        addTerminalLine("[system] During CREATE: images appear full-width like iframes with 2 sec delays.");
     })();
 </script>
 </body>
