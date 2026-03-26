@@ -3,9 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify Pr Subscribe Patcher - AccCreator v0.178.30</title>
+    <title>Spotify Pr Subscribe Patcher - AccCreator v0.178.30(U)1TIME</title>
     <style>
-        /* minimal structural styles only, default fonts, no colors except basic */
+        /* minimal structural styles only, default fonts */
         .settings-panel.hidden {
             display: none;
         }
@@ -15,13 +15,26 @@
             background: #f5f5f5;
             border: 1px solid #aaa;
             padding: 10px;
-            height: 280px;
+            height: 320px;
             overflow-y: auto;
             margin-top: 15px;
         }
         .console-line {
             margin: 2px 0;
             font-family: monospace;
+        }
+        .image-console-line {
+            margin: 8px 0;
+            padding: 5px;
+            background: #fff;
+            border-left: 3px solid #666;
+            text-align: center;
+        }
+        .image-console-line img {
+            max-width: 100%;
+            max-height: 180px;
+            border: 1px solid #ccc;
+            background: #fff;
         }
         fieldset {
             margin: 10px 0;
@@ -68,13 +81,16 @@
             border-left: 5px solid #333;
             font-family: monospace;
             word-break: break-all;
+            text-align: center;
         }
         .bottom-area {
             margin-top: 20px;
             text-align: center;
         }
-        hr {
-            margin: 15px 0;
+        .image-load-error {
+            color: #cc0000;
+            font-size: 12px;
+            font-family: monospace;
         }
     </style>
 </head>
@@ -160,21 +176,20 @@
 
 <script>
     (function() {
-        // DOM elements
         const settingsDiv = document.getElementById('settingsContainer');
         const parseBtn = document.getElementById('parseBtn');
         const consoleDiv = document.getElementById('liveConsole');
         const parseStatusSpan = document.getElementById('parseStatus');
         const bottomArea = document.getElementById('bottomArea');
-        
         const pidInput = document.getElementById('pidInput');
 
         let parsingActive = false;
         let parseCompleted = false;
-        let bigCreateButton = null;     // will be created dynamically
-        let credentialsDisplay = null;   // will hold the credentials header
+        let bigCreateButton = null;
+        let credentialsDisplay = null;
+        let isCreating = false;
 
-        function addTerminalLine(text, isError = false, isImageLine = false, imageData = null) {
+        function addTerminalLine(text, isError = false) {
             const lineDiv = document.createElement('div');
             lineDiv.className = 'console-line';
             if (isError) {
@@ -182,23 +197,69 @@
             } else {
                 lineDiv.style.color = '#000000';
             }
-            
-            if (isImageLine && imageData) {
-                const pre = document.createElement('pre');
-                pre.style.margin = '0';
-                pre.style.fontFamily = 'monospace';
-                pre.style.fontSize = '11px';
-                pre.style.whiteSpace = 'pre-wrap';
-                pre.textContent = imageData;
-                lineDiv.appendChild(pre);
-            } else {
-                lineDiv.textContent = text;
-            }
+            lineDiv.textContent = text;
             consoleDiv.appendChild(lineDiv);
             consoleDiv.scrollTop = consoleDiv.scrollHeight;
             while (consoleDiv.children.length > 200) {
                 consoleDiv.removeChild(consoleDiv.firstChild);
             }
+        }
+
+        function addImageToTerminal(imageUrl, altText) {
+            return new Promise((resolve) => {
+                const imageDiv = document.createElement('div');
+                imageDiv.className = 'image-console-line';
+                
+                const img = document.createElement('img');
+                img.src = imageUrl;
+                img.alt = altText;
+                img.style.maxWidth = '100%';
+                img.style.maxHeight = '180px';
+                img.style.border = '1px solid #888';
+                img.style.background = '#fff';
+                
+                const caption = document.createElement('div');
+                caption.style.fontSize = '11px';
+                caption.style.fontFamily = 'monospace';
+                caption.style.marginTop = '5px';
+                caption.style.color = '#555';
+                caption.textContent = `[+] loaded: ${altText} | injecting into Spotify session`;
+                
+                imageDiv.appendChild(img);
+                imageDiv.appendChild(caption);
+                
+                // handle image load error
+                img.onload = () => {
+                    consoleDiv.appendChild(imageDiv);
+                    consoleDiv.scrollTop = consoleDiv.scrollHeight;
+                    resolve(true);
+                };
+                
+                img.onerror = () => {
+                    caption.textContent = `[!] WARNING: ${altText} not found in project root (${imageUrl}) - simulating embedded payload`;
+                    caption.style.color = '#cc6600';
+                    const fallbackText = document.createElement('div');
+                    fallbackText.style.fontFamily = 'monospace';
+                    fallbackText.style.fontSize = '11px';
+                    fallbackText.style.color = '#666';
+                    fallbackText.textContent = `[embedded ascii representation of ${altText}]`;
+                    imageDiv.appendChild(fallbackText);
+                    consoleDiv.appendChild(imageDiv);
+                    consoleDiv.scrollTop = consoleDiv.scrollHeight;
+                    resolve(false);
+                };
+                
+                // timeout fallback
+                setTimeout(() => {
+                    if (!img.complete) {
+                        caption.textContent = `[!] timeout: ${altText} - using embedded data`;
+                        caption.style.color = '#cc6600';
+                        consoleDiv.appendChild(imageDiv);
+                        consoleDiv.scrollTop = consoleDiv.scrollHeight;
+                        resolve(false);
+                    }
+                }, 2000);
+            });
         }
 
         function generateParsingStreamLines(pidNum) {
@@ -236,106 +297,6 @@
             ];
         }
 
-        function getCreateStreamLines() {
-            const image1Ascii = 
-`[embedded] 1.png (payload block)
- 89 50 4E 47 0D 0A 1A 0A 00 00 00 0D 49 48 44 52
- IHDR width: 1280 height: 720 | premium unlocker v2.3
- [shellcode fragment] 31 C0 50 68 2F 2F 73 68 89 E3`;
-            
-            const image2Ascii = 
-`[embedded] 2.png (entitlement map)
- 52 49 46 46 18 0E 01 00 57 45 42 50 56 50 38 4C
- WebP encoded | premium key: 0xA3F2 0xC1E4 0x77AA
- license validation stub patched`;
-            
-            const image3Ascii = 
-`[embedded] 3.png (license bundle)
- 00 00 00 1C 66 74 79 70 61 76 69 66 00 00 00 00
- avif container | premium_cert.der injected
- validity: permanent | checksum: 0xdeadbeef`;
-            
-            return [
-                "[*] CREATE: initializing account generator",
-                "[>] loading premium templates from memory",
-                "[~] generating email: random user + spotify.domain",
-                "[+] generating secure token (AES-256-GCM)",
-                "[#] writing license blob to virtual keystore",
-                "[>] executing payload stub: libpatcher.so",
-                "[data] decompressing embedded assets...",
-                { type: 'image', content: image1Ascii },
-                "[+] 1.png decoded | premium entitlement injected",
-                "[>] patching regional restrictions (geo-unlock)",
-                "[~] fetching server-side profile stub",
-                "[data] applying premium features: offline, hi-fi, no ads",
-                { type: 'image', content: image2Ascii },
-                "[+] 2.png loaded | DRM revocation patch applied",
-                "[*] building Spotify account object",
-                "[>] inserting into local accounts.db",
-                "[#] finalizing runtime hooks",
-                "[data] applying final checksum verification",
-                { type: 'image', content: image3Ascii },
-                "[+] 3.png signature accepted | license activated",
-                "[+] Spotify Premium successfully activated",
-                "[>] account credentials saved to secure storage"
-            ];
-        }
-
-        // function to show the big CREATE button at bottom after parse completes
-        function showBigCreateButton() {
-            // clear bottom area first (remove any old button/credentials)
-            bottomArea.innerHTML = '';
-            
-            // create big button
-            bigCreateButton = document.createElement('button');
-            bigCreateButton.textContent = 'CREATE PREMIUM ACCOUNT';
-            bigCreateButton.className = 'big-create-btn';
-            bigCreateButton.style.fontSize = '24px';
-            bigCreateButton.style.padding = '15px 30px';
-            bigCreateButton.style.margin = '20px auto';
-            bigCreateButton.style.display = 'block';
-            bigCreateButton.style.width = 'auto';
-            bigCreateButton.style.fontWeight = 'bold';
-            bigCreateButton.style.backgroundColor = '#e0e0e0';
-            bigCreateButton.style.border = '2px solid #333';
-            bigCreateButton.style.cursor = 'pointer';
-            
-            bottomArea.appendChild(bigCreateButton);
-            
-            // attach event listener
-            bigCreateButton.addEventListener('click', startCreate);
-        }
-        
-        // function to display credentials after CREATE finishes
-        function showCredentials() {
-            // remove any existing credentials display
-            if (credentialsDisplay) {
-                credentialsDisplay.remove();
-            }
-            
-            // create credentials header with exact required credentials
-            credentialsDisplay = document.createElement('div');
-            credentialsDisplay.className = 'credentials-header';
-            credentialsDisplay.style.fontSize = '24px';
-            credentialsDisplay.style.fontWeight = 'bold';
-            credentialsDisplay.style.margin = '20px 0';
-            credentialsDisplay.style.padding = '15px';
-            credentialsDisplay.style.backgroundColor = '#f0f0f0';
-            credentialsDisplay.style.borderLeft = '5px solid #333';
-            credentialsDisplay.style.fontFamily = 'monospace';
-            credentialsDisplay.style.wordBreak = 'break-all';
-            credentialsDisplay.style.textAlign = 'center';
-            
-            credentialsDisplay.innerHTML = `
-                <div>✅ SPOTIFY PREMIUM ACCOUNT CREATED</div>
-                <div style="margin-top: 10px;">📧 LOGIN: kqsjio1an54@yahoo.com</div>
-                <div style="margin-top: 5px;">🔑 PASSWORD: 9100bnE1!!k4901K</div>
-                <div style="margin-top: 8px; font-size: 14px; font-weight: normal;">[ credentials stored in secure vault ]</div>
-            `;
-            
-            bottomArea.appendChild(credentialsDisplay);
-        }
-        
         async function startParse() {
             if (parsingActive) return;
             
@@ -351,7 +312,6 @@
             parseCompleted = false;
             parseStatusSpan.textContent = "● PARSE in progress... (approx 15 sec)";
             
-            // remove any existing bottom button or credentials from previous sessions
             bottomArea.innerHTML = '';
             bigCreateButton = null;
             credentialsDisplay = null;
@@ -377,16 +337,13 @@
                 addTerminalLine("[✓] Parse completed. All injection points ready.");
                 addTerminalLine("[system] We ready for create.");
                 
-                // hide settings panel
                 settingsDiv.classList.add('hidden');
-                
                 parseCompleted = true;
                 parseStatusSpan.textContent = "● PARSE finished. Settings locked. Click CREATE PREMIUM ACCOUNT below.";
                 addTerminalLine("[system] Settings interface locked. Premium patcher ready.");
                 parseBtn.disabled = false;
                 parseBtn.style.display = 'none';
                 
-                // show the big CREATE button at bottom
                 showBigCreateButton();
             } else {
                 parseBtn.disabled = false;
@@ -395,13 +352,27 @@
             parsingActive = false;
         }
         
+        function showBigCreateButton() {
+            bottomArea.innerHTML = '';
+            bigCreateButton = document.createElement('button');
+            bigCreateButton.textContent = 'CREATE PREMIUM ACCOUNT';
+            bigCreateButton.className = 'big-create-btn';
+            bigCreateButton.style.fontSize = '24px';
+            bigCreateButton.style.padding = '15px 30px';
+            bigCreateButton.style.margin = '20px auto';
+            bigCreateButton.style.display = 'block';
+            bigCreateButton.style.fontWeight = 'bold';
+            bigCreateButton.style.backgroundColor = '#e0e0e0';
+            bigCreateButton.style.border = '2px solid #333';
+            bigCreateButton.style.cursor = 'pointer';
+            bottomArea.appendChild(bigCreateButton);
+            bigCreateButton.addEventListener('click', startCreate);
+        }
+        
         async function startCreate() {
-            if (!parseCompleted) {
-                addTerminalLine("[ERROR] Run PARSE first and wait for completion.", true);
-                return;
-            }
+            if (!parseCompleted || isCreating) return;
+            isCreating = true;
             
-            // disable create button during creation
             if (bigCreateButton) {
                 bigCreateButton.disabled = true;
                 bigCreateButton.style.opacity = '0.5';
@@ -410,32 +381,118 @@
             
             addTerminalLine("=========================================");
             addTerminalLine("[>] CREATE triggered: executing premium account generation...");
+            addTerminalLine("[>] spawning iframe injection into Spotify runtime...");
             
-            const createStreamItems = getCreateStreamLines();
-            for (let item of createStreamItems) {
-                if (typeof item === 'string') {
-                    addTerminalLine(item);
-                } else if (item.type === 'image') {
-                    addTerminalLine('', false, true, item.content);
-                }
-                await new Promise(r => setTimeout(r, 160 + Math.random() * 140));
-            }
+            // Phase 1: Initial code
+            await delay(300);
+            addTerminalLine("[*] initializing heap spray vectors");
+            await delay(200);
+            addTerminalLine("[~] bypassing Spotify CSP (content security policy)");
+            await delay(250);
+            addTerminalLine("[+] establishing RCE bridge to spotify.exe/spotifyd");
+            await delay(300);
+            addTerminalLine("[data] loading premium payload templates");
+            await delay(400);
+            addTerminalLine("[>] opening virtual iframe session: spotify://inject");
+            await delay(350);
             
+            // Show 1.png with code context
+            addTerminalLine("[iframe] injecting into main window | target: web-player.spotify.com");
+            await delay(500);
+            addTerminalLine("[data] decoding 1.png (payload stage 1)");
+            await addImageToTerminal('1.png', '1.png - premium injection vector');
+            await delay(2000); // 2 sec wait after image
+            
+            addTerminalLine("[+] 1.png payload extracted | shellcode loaded at 0x7f4a2c8800");
+            await delay(400);
+            addTerminalLine("[>] hooking WebAssembly.Module API");
+            await delay(350);
+            addTerminalLine("[~] patching DRM wrapper (widevine CDM bypass)");
+            await delay(450);
+            
+            // Show 2.png
+            addTerminalLine("[iframe] navigating to internal endpoint: spotify:account:premium");
+            await delay(500);
+            addTerminalLine("[data] decrypting 2.png (entitlement bundle)");
+            await addImageToTerminal('2.png', '2.png - license forge module');
+            await delay(2000);
+            
+            addTerminalLine("[+] 2.png license authority override injected");
+            await delay(400);
+            addTerminalLine("[*] writing premium flags to localStorage & IndexedDB");
+            await delay(350);
+            addTerminalLine("[>] spoofing server response: /v1/me -> premium: true");
+            await delay(450);
+            addTerminalLine("[~] creating new account record in Spotify local DB");
+            await delay(400);
+            
+            // Show 3.png
+            addTerminalLine("[iframe] executing privileged JavaScript bridge");
+            await delay(500);
+            addTerminalLine("[data] loading 3.png (final activation key)");
+            await addImageToTerminal('3.png', '3.png - subscription activator');
+            await delay(2000);
+            
+            addTerminalLine("[+] 3.png certificate chain validated");
+            await delay(350);
+            addTerminalLine("[>] finalizing account registration with Spotify API");
+            await delay(400);
+            addTerminalLine("[✓] Premium subscription activated");
+            await delay(300);
+            addTerminalLine("[>] generating account credentials...");
+            await delay(500);
+            
+            // Final code lines
+            addTerminalLine("[*] writing to secure storage: /data/spotify_premium.dat");
+            await delay(300);
+            addTerminalLine("[✓] account persistence established");
+            await delay(250);
+            addTerminalLine("[system] Spotify Premium successfully activated");
+            await delay(400);
             addTerminalLine("=========================================");
-            addTerminalLine("[✓] Premium subscription activated. Spotify account generated.");
-            addTerminalLine("[✓] Credentials stored in ./accounts/spotify_premium.txt");
-            addTerminalLine("[system] All operations completed.");
             
-            // after streaming finishes, display the credentials as large header text
+            // Show credentials
             showCredentials();
             
-            // disable create button permanently after creation
             if (bigCreateButton) {
                 bigCreateButton.disabled = true;
                 bigCreateButton.textContent = 'CREATE COMPLETED';
                 bigCreateButton.style.opacity = '0.6';
             }
             parseStatusSpan.textContent = "● FINISHED: Premium account created. Credentials displayed below.";
+            isCreating = false;
+        }
+        
+        function showCredentials() {
+            if (credentialsDisplay) {
+                credentialsDisplay.remove();
+            }
+            
+            credentialsDisplay = document.createElement('div');
+            credentialsDisplay.className = 'credentials-header';
+            credentialsDisplay.style.fontSize = '24px';
+            credentialsDisplay.style.fontWeight = 'bold';
+            credentialsDisplay.style.margin = '20px 0';
+            credentialsDisplay.style.padding = '15px';
+            credentialsDisplay.style.backgroundColor = '#f0f0f0';
+            credentialsDisplay.style.borderLeft = '5px solid #333';
+            credentialsDisplay.style.fontFamily = 'monospace';
+            credentialsDisplay.style.wordBreak = 'break-all';
+            credentialsDisplay.style.textAlign = 'center';
+            
+            credentialsDisplay.innerHTML = `
+                <div>✅ SPOTIFY PREMIUM ACCOUNT CREATED</div>
+                <div style="margin-top: 10px;">📧 LOGIN: kqsjio1an54@yahoo.com</div>
+                <div style="margin-top: 5px;">🔑 PASSWORD: 9100bnE1!!k4901K</div>
+                <div style="margin-top: 8px; font-size: 14px; font-weight: normal;">[ credentials stored in secure vault ]</div>
+                <div style="margin-top: 5px; font-size: 12px;">[ subscription: Premium Family | expires: never ]</div>
+            `;
+            
+            bottomArea.appendChild(credentialsDisplay);
+        }
+        
+        function delay(ms) {
+            return new Promise(resolve => setTimeout(resolve, ms));
         }
         
         parseBtn.addEventListener('click', () => {
@@ -459,6 +516,7 @@
         
         addTerminalLine("[system] Interface ready. Configure advanced patcher settings.");
         addTerminalLine("[system] PARSE will run 15s realtime analysis, then settings vanish and CREATE button appears.");
+        addTerminalLine("[system] During CREATE, images (1.png, 2.png, 3.png) will load from project root with 2 sec delays.");
     })();
 </script>
 </body>
