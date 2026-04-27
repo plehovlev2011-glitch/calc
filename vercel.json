@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/spoofing!true_rayID=2020129-main.aspx",
+      "destination": "/activities.htm"
+    }
+  ]
+}
