@@ -1,8 +1,7 @@
 {
-  "rewrites": [
-    {
-      "source": "/spoofingtrue_rayID2020129-main.aspx",
-      "destination": "/activities.htm"
+    "functions": {
+        "api/groq.js": {
+            "runtime": "nodejs20.x"
+        }
     }
-  ]
 }
