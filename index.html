@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Groq AI</title>
+</head>
+<body>
+    <div style="position:fixed; top:0; left:0; right:0; bottom:0;">
+        <div style="position:absolute; top:0; left:0; right:0; height:40px; background:#ddd; padding:8px;">
+            <b>Groq AI</b>
+        </div>
+        
+        <div id="chat" style="position:absolute; top:56px; left:0; right:0; bottom:80px; overflow:auto; padding:10px;">
+            <div><b>AI:</b> Привет!</div>
+        </div>
+        
+        <div style="position:absolute; bottom:0; left:0; right:0; height:80px; background:#eee; padding:10px;">
+            <textarea id="input" style="width:80%; height:60px;"></textarea>
+            <button id="send" style="width:18%; height:60px;">Send</button>
+        </div>
+    </div>
+
+    <script>
+        let history = [{ role: "system", content: "Ты помощник. Отвечай кратко." }];
+        const chatDiv = document.getElementById('chat');
+        const inputField = document.getElementById('input');
+        const sendBtn = document.getElementById('send');
+        
+        function add(role, text) {
+            const div = document.createElement('div');
+            div.innerHTML = `<b>${role === 'user' ? 'Вы' : 'AI'}:</b> ${text.replace(/</g, '&lt;')}<br><br>`;
+            chatDiv.appendChild(div);
+            chatDiv.scrollTop = chatDiv.scrollHeight;
+        }
+        
+        async function send() {
+            const text = inputField.value.trim();
+            if (!text) return;
+            
+            add('user', text);
+            history.push({ role: "user", content: text });
+            inputField.value = '';
+            
+            add('AI', '...');
+            const lastMsg = chatDiv.lastChild;
+            
+            try {
+                const res = await fetch('/api/groq', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        model: "llama-4-scout-17b-16e-instruct",
+                        messages: history,
+                        max_tokens: 1024
+                    })
+                });
+                
+                const data = await res.json();
+                const reply = data.choices[0].message.content;
+                lastMsg.innerHTML = `<b>AI:</b> ${reply.replace(/</g, '&lt;')}<br><br>`;
+                history.push({ role: "assistant", content: reply });
+                
+            } catch(e) {
+                lastMsg.innerHTML = `<b>AI:</b> Ошибка: ${e.message}<br><br>`;
+            }
+        }
+        
+        sendBtn.onclick = send;
+        inputField.onkeypress = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } };
+    </script>
+</body>
+</html>
